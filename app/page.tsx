@@ -1,0 +1,159 @@
+import ThemeToggle from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Briefcase, User } from "lucide-react";
+
+export default function Home() {
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-linear-to-b from-background via-background to-background">
+      <div className="pointer-events-none absolute -left-40 top-10 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
+      <div className="pointer-events-none absolute right-10 top-20 h-96 w-96 rounded-full bg-secondary/20 blur-3xl" />
+
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-20 pt-6 sm:px-10">
+        <header className="flex items-center justify-between gap-6 rounded-full border border-border/50 bg-background/70 px-6 py-3 shadow-sm backdrop-blur">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 48 48"
+                className="h-9 w-9 text-primary"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  fill="currentColor"
+                  opacity="0.2"
+                />
+                <circle cx="24" cy="24" r="12" fill="currentColor" />
+                <circle
+                  cx="32"
+                  cy="16"
+                  r="4"
+                  fill="currentColor"
+                  opacity="0.9"
+                />
+              </svg>
+            </div>
+            <span className="text-sm font-semibold text-foreground">
+              TalentAI
+            </span>
+          </div>
+          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
+            <a className="transition hover:text-foreground" href="#features">
+              Features
+            </a>
+            <a className="transition hover:text-foreground" href="#solutions">
+              Solutions
+            </a>
+            <a className="transition hover:text-foreground" href="#pricing">
+              Pricing
+            </a>
+            <a className="transition hover:text-foreground" href="#about">
+              About
+            </a>
+          </nav>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full px-4 text-muted-foreground hover:text-foreground"
+            >
+              Login
+            </Button>
+            <Button
+              size="sm"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Get Started
+            </Button>
+            <ThemeToggle />
+          </div>
+        </header>
+
+        <main className="mt-16 flex flex-col items-center text-center">
+          <Badge
+            variant="outline"
+            className="rounded-full border-border/60 bg-background/80 px-4 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-muted-foreground"
+          >
+            Now with GPT-4 Integration
+          </Badge>
+          <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+            Find the Right Talent,
+            <span className="block text-primary">Faster with AI</span>
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            Our proprietary algorithms analyze millions of data points to match
+            top companies with the perfect candidates in seconds, not weeks.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Button
+              className="rounded-full bg-primary px-6 text-primary-foreground hover:bg-primary/90"
+              size="lg"
+            >
+              <Briefcase className="h-4 w-4" />
+              Post a Job
+            </Button>
+            <Button variant="outline" className="rounded-full px-6" size="lg">
+              <User className="h-4 w-4" />
+              Apply as Candidate
+            </Button>
+          </div>
+
+          <Card className="mt-14 w-full max-w-4xl rounded-3xl border-border/70 bg-background/80 shadow-xl backdrop-blur">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-2 border-b border-border/70 px-6 py-4">
+                <span className="h-3 w-3 rounded-full bg-red-400" />
+                <span className="h-3 w-3 rounded-full bg-amber-400" />
+                <span className="h-3 w-3 rounded-full bg-emerald-400" />
+              </div>
+              <div className="grid gap-6 p-6 md:grid-cols-[1fr_1.4fr]">
+                <div className="space-y-4 rounded-2xl bg-muted/60 p-4">
+                  <div className="h-8 w-20 rounded-lg bg-muted" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-32 rounded-full bg-muted" />
+                    <div className="h-3 w-24 rounded-full bg-muted" />
+                    <div className="h-3 w-28 rounded-full bg-muted" />
+                  </div>
+                  <div className="h-10 rounded-xl bg-muted" />
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/20" />
+                      <div>
+                        <div className="h-3 w-24 rounded-full bg-muted" />
+                        <div className="mt-2 h-3 w-32 rounded-full bg-muted" />
+                      </div>
+                    </div>
+                    <Badge className="rounded-full bg-primary/10 text-primary">
+                      98% Match
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-muted" />
+                      <div>
+                        <div className="h-3 w-24 rounded-full bg-muted" />
+                        <div className="mt-2 h-3 w-32 rounded-full bg-muted" />
+                      </div>
+                    </div>
+                    <Badge className="rounded-full bg-secondary text-secondary-foreground">
+                      85% Match
+                    </Badge>
+                  </div>
+                  <div className="rounded-2xl border border-dashed border-border/70 bg-muted/60 px-4 py-6 text-left text-sm text-muted-foreground">
+                    120+ candidate profiles auto-ranked based on your role fit.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    </div>
+  );
+}
