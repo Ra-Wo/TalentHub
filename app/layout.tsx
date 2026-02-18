@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Manrope } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+import { SupabaseProvider } from "@/components/supabase-provider";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -31,10 +32,10 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
-          enableSystem
           disableTransitionOnChange
+          enableSystem
         >
-          {children}
+          <SupabaseProvider>{children}</SupabaseProvider>
         </ThemeProvider>
       </body>
     </html>

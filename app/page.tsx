@@ -81,7 +81,7 @@ export default function Home() {
           >
             Now with GPT-4 Integration
           </Badge>
-          <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+          <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-tight text-foreground sm:text-5xl">
             Find the Right Talent,
             <span className="block text-primary">Faster with AI</span>
           </h1>
