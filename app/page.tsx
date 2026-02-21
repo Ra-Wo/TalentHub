@@ -1,78 +1,19 @@
-import ThemeToggle from "@/components/theme-toggle";
+import { HomeHeader } from "@/components/home-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Meteors } from "@/components/ui/meteors";
 import { Briefcase, User } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-linear-to-b from-background via-background to-background">
-      <div className="pointer-events-none absolute -left-40 top-10 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-20 h-96 w-96 rounded-full bg-secondary/20 blur-3xl" />
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0">
+        <Meteors number={24} />
+      </div>
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-20 pt-6 sm:px-10">
-        <header className="flex items-center justify-between gap-6 rounded-full border border-border/50 bg-background/70 px-6 py-3 shadow-sm backdrop-blur">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 48 48"
-                className="h-9 w-9 text-primary"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  fill="currentColor"
-                  opacity="0.2"
-                />
-                <circle cx="24" cy="24" r="12" fill="currentColor" />
-                <circle
-                  cx="32"
-                  cy="16"
-                  r="4"
-                  fill="currentColor"
-                  opacity="0.9"
-                />
-              </svg>
-            </div>
-            <span className="text-sm font-semibold text-foreground">
-              TalentAI
-            </span>
-          </div>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
-            <a className="transition hover:text-foreground" href="#features">
-              Features
-            </a>
-            <a className="transition hover:text-foreground" href="#solutions">
-              Solutions
-            </a>
-            <a className="transition hover:text-foreground" href="#pricing">
-              Pricing
-            </a>
-            <a className="transition hover:text-foreground" href="#about">
-              About
-            </a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full px-4 text-muted-foreground hover:text-foreground"
-            >
-              Login
-            </Button>
-            <Button
-              size="sm"
-              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Get Started
-            </Button>
-            <ThemeToggle />
-          </div>
-        </header>
+        <HomeHeader />
 
         <main className="mt-16 flex flex-col items-center text-center">
           <Badge
