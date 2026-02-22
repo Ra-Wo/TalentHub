@@ -3,9 +3,9 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import ThemeToggle from "@/components/theme-toggle";
+import ThemeToggle from "@/components/ui/theme-toggle";
 import Link from "next/link";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();

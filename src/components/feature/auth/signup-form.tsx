@@ -17,6 +17,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type AccountType = "candidate" | "recruiter";
 
@@ -27,7 +28,7 @@ export function SignUpForm() {
   const [accountType, setAccountType] = useState<AccountType>("candidate");
   const { signUp, signInWithGoogle, loading, error } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await signUp(email, password, accountType);
@@ -38,24 +39,24 @@ export function SignUpForm() {
     }
   };
 
+  console.log(accountType);
+
   return (
     <Card className="border-border">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
+              <div
                 onClick={() => setAccountType("candidate")}
-                variant="outline"
-                className={`h-auto flex-col items-center gap-2 p-3 text-sm ${
+                className={cn(
+                  "h-auto flex-col gap-2 p-3 text-sm border-border border rounded-lg cursor-pointer flex items-center",
                   accountType === "candidate"
-                    ? "border-primary bg-accent text-accent-foreground"
-                    : "hover:bg-accent"
-                }`}
-                disabled={loading}
+                    ? "border-primary/10 bg-accent/50 text-accent-foreground"
+                    : "hover:bg-accent/50",
+                )}
               >
-                <div className="rounded-full bg-muted p-1.5">
+                <div className="rounded-full bg-muted p-1.5 w-fit">
                   <User className="h-4 w-4" />
                 </div>
                 <div className="text-center">
@@ -64,17 +65,15 @@ export function SignUpForm() {
                     Find opportunities
                   </div>
                 </div>
-              </Button>
-              <Button
-                type="button"
+              </div>
+              <div
                 onClick={() => setAccountType("recruiter")}
-                variant="outline"
-                className={`h-auto flex-col items-center gap-2 p-3 text-sm ${
+                className={cn(
+                  "h-auto flex-col gap-2 p-3 text-sm border-border border rounded-lg cursor-pointer flex items-center",
                   accountType === "recruiter"
-                    ? "border-primary bg-accent text-accent-foreground"
-                    : "hover:bg-accent"
-                }`}
-                disabled={loading}
+                    ? "border-primary/10 bg-accent/50 text-accent-foreground"
+                    : "hover:bg-accent/50",
+                )}
               >
                 <div className="rounded-full bg-muted p-1.5">
                   <Briefcase className="h-4 w-4" />
@@ -85,7 +84,7 @@ export function SignUpForm() {
                     Hire talent
                   </div>
                 </div>
-              </Button>
+              </div>
             </div>
           </div>
 

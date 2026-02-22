@@ -1,5 +1,5 @@
-import { ProtectedRoute } from "@/components/protected-route";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { ProtectedRoute } from "@/components/feature/protected-route";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 
 export default function DashboardLayout({
   children,

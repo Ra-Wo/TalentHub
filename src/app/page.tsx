@@ -1,4 +1,4 @@
-import { HomeHeader } from "@/components/home-header";
+import { HomeHeader } from "@/components/layout/home-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

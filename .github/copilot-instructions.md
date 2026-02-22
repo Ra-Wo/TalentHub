@@ -9,6 +9,7 @@ src/
   app/                # Next.js App Router (routes, layouts, pages)
   components/
     ui/               # Generic UI (Button, Input, Modal)
+    icons/            # SVG icons as React components
     layout/           # Header, Footer, Sidebar
     feature/          # Feature-specific (AuthForm, DashboardCard)
   hooks/              # useAuth, useFetch, useTheme
@@ -30,8 +31,3 @@ src/
 8. Put React providers/contexts in `src/context`.
 9. Put third-party integration code in `src/services`.
 10. Avoid adding new top-level folders for app code outside `src`.
-
-## Migration note
-
-This repository currently contains app code at the root level (`app`, `components`, `hooks`, `lib`, etc.).
-For future work, use the `src` structure above unless a task explicitly requires modifying existing root-level files.

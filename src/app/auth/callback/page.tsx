@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSupabase } from "@/components/supabase-provider";
+import { useSupabase } from "@/context/supabase-provider";
 
 type AccountType = "candidate" | "recruiter";
 

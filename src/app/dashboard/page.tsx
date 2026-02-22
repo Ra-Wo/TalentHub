@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, Users, TrendingUp, Plus, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useSupabase } from "@/components/supabase-provider";
+import { useSupabase } from "@/context/supabase-provider";
 import { useEffect } from "react";
 
 const stats = [

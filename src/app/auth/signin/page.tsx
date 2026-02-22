@@ -1,6 +1,6 @@
 "use client";
 
-import { SignInForm } from "@/components/auth/signin-form";
+import { SignInForm } from "@/components/feature/auth/signin-form";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

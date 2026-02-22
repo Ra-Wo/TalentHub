@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import ThemeToggle from "@/components/theme-toggle";
+import ThemeToggle from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
@@ -32,7 +32,11 @@ export function HomeHeader() {
 
       <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
         {navLinks.map((link) => (
-          <a key={link.href} className="transition hover:text-foreground" href={link.href}>
+          <a
+            key={link.href}
+            className="transition hover:text-foreground"
+            href={link.href}
+          >
             {link.label}
           </a>
         ))}

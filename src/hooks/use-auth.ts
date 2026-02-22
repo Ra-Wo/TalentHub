@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSupabase } from "@/components/supabase-provider";
+import { useSupabase } from "@/context/supabase-provider";
 import type { User } from "@supabase/supabase-js";
 
 export type AccountType = "candidate" | "recruiter";
@@ -11,6 +11,8 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  console.log("Auth state changed:", { user, loading, error });
 
   useEffect(() => {
     async function getUser() {
