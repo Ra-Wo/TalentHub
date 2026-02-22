@@ -8,16 +8,8 @@ import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupText } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/icons/google-icon";
-import {
-  Mail,
-  Lock,
-  Loader2,
-  Briefcase,
-  User,
-  Eye,
-  EyeOff,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
+import { AccountTypeSelector } from "./account-type-selector";
 
 type AccountType = "candidate" | "recruiter";
 
@@ -45,48 +37,11 @@ export function SignUpForm() {
     <Card className="border-border">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <div className="grid grid-cols-2 gap-2">
-              <div
-                onClick={() => setAccountType("candidate")}
-                className={cn(
-                  "h-auto flex-col gap-2 p-3 text-sm border-border border rounded-lg cursor-pointer flex items-center",
-                  accountType === "candidate"
-                    ? "border-primary/10 bg-accent/50 text-accent-foreground"
-                    : "hover:bg-accent/50",
-                )}
-              >
-                <div className="rounded-full bg-muted p-1.5 w-fit">
-                  <User className="h-4 w-4" />
-                </div>
-                <div className="text-center">
-                  <div className="font-medium">Candidate</div>
-                  <div className="text-xs text-muted-foreground">
-                    Find opportunities
-                  </div>
-                </div>
-              </div>
-              <div
-                onClick={() => setAccountType("recruiter")}
-                className={cn(
-                  "h-auto flex-col gap-2 p-3 text-sm border-border border rounded-lg cursor-pointer flex items-center",
-                  accountType === "recruiter"
-                    ? "border-primary/10 bg-accent/50 text-accent-foreground"
-                    : "hover:bg-accent/50",
-                )}
-              >
-                <div className="rounded-full bg-muted p-1.5">
-                  <Briefcase className="h-4 w-4" />
-                </div>
-                <div className="text-center">
-                  <div className="font-medium">Recruiter</div>
-                  <div className="text-xs text-muted-foreground">
-                    Hire talent
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AccountTypeSelector
+            value={accountType}
+            onChange={setAccountType}
+            disabled={loading}
+          />
 
           <div className="space-y-2.5">
             <Label>Email Address</Label>

@@ -1,20 +1,21 @@
 "use client";
 
 import { SignUpForm } from "@/components/feature/auth/signup-form";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, getAccountTypeRoute } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SignUpPage() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, accountType } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      router.push("/dashboard");
+      const dashboardRoute = getAccountTypeRoute(accountType);
+      router.push(dashboardRoute);
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, accountType, router]);
 
   if (loading) {
     return (

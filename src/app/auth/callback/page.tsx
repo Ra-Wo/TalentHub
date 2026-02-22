@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/context/supabase-provider";
+import { getAccountTypeRoute } from "@/hooks/use-auth";
 
 type AccountType = "candidate" | "recruiter";
 
@@ -35,7 +36,8 @@ export default function AuthCallbackPage() {
         }
       }
 
-      router.replace("/dashboard");
+      const dashboardRoute = getAccountTypeRoute(requestedAccountType);
+      router.replace(dashboardRoute);
     };
 
     void syncAccountType();

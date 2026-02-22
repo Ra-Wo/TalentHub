@@ -6,13 +6,15 @@ import type { User } from "@supabase/supabase-js";
 
 export type AccountType = "candidate" | "recruiter";
 
+export function getAccountTypeRoute(accountType?: AccountType | null): string {
+  return accountType === "recruiter" ? "/recruiter" : "/candidate";
+}
+
 export function useAuth() {
   const supabase = useSupabase();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  console.log("Auth state changed:", { user, loading, error });
 
   useEffect(() => {
     async function getUser() {
@@ -153,8 +155,12 @@ export function useAuth() {
     }
   };
 
+  const accountType =
+    (user?.user_metadata?.account_type as AccountType) || null;
+
   return {
     user,
+    accountType,
     loading,
     error,
     signUp,

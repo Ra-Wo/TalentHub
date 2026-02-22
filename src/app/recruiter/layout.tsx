@@ -1,7 +1,7 @@
 import { ProtectedRoute } from "@/components/feature/protected-route";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 
-export default function DashboardLayout({
+export default function RecruiterDashboardLayout({
   children,
 }: {
   children: React.ReactNode;

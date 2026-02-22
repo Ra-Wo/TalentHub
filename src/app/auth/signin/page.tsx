@@ -7,14 +7,16 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SignInPage() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, accountType } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      router.push("/dashboard");
+      const dashboardRoute =
+        accountType === "recruiter" ? "/recruiter" : "/candidate";
+      router.push(dashboardRoute);
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, accountType, router]);
 
   if (loading) {
     return (
