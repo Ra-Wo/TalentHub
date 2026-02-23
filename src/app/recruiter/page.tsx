@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { useSupabase } from "@/context/supabase-provider";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,62 +19,72 @@ import {
   columns,
   type Job,
 } from "@/components/layout/recruiter-data-table/columns";
+import { listRecruiterJobs, type RecruiterJobRow } from "@/lib/jobs-client";
 import { Plus, Briefcase, PieChart, Flame, ArrowUpDown } from "lucide-react";
 
-const jobs: Job[] = [
-  {
-    id: 1,
-    title: "Senior Product Designer",
-    type: "Remote • Full-time",
-    department: "Product",
-    status: "Active",
-    applicants: 45,
-    extraApplicants: "+42",
-    date: "Oct 24, 2023",
-  },
-  {
-    id: 2,
-    title: "Backend Engineer",
-    type: "San Francisco • Hybrid",
-    department: "Engineering",
-    status: "Draft",
-    applicants: 0,
+function formatDate(input: string) {
+  const date = new Date(input);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+}
+
+function mapApiJobToTable(job: RecruiterJobRow): Job {
+  const primaryLocation = job.location?.trim() || job.locationType;
+  return {
+    id: job.id,
+    title: job.title,
+    type: `${primaryLocation} • ${job.jobType}`,
+    department: job.department,
+    status: job.status,
+    applicants: job.applicantCount,
     extraApplicants: null,
-    date: "Oct 26, 2023",
-  },
-  {
-    id: 3,
-    title: "HR Specialist",
-    type: "New York • On-site",
-    department: "People Ops",
-    status: "Closed",
-    applicants: 120,
-    extraApplicants: "+99",
-    date: "Sep 12, 2023",
-  },
-  {
-    id: 4,
-    title: "Senior React Developer",
-    type: "Remote • Contract",
-    department: "Engineering",
-    status: "Active",
-    applicants: 156,
-    extraApplicants: "Hot",
-    date: "Oct 15, 2023",
-  },
-  {
-    id: 5,
-    title: "Marketing Manager",
-    type: "London • Full-time",
-    department: "Marketing",
-    status: "Active",
-    applicants: 28,
-    extraApplicants: null,
-    date: "Oct 28, 2023",
-  },
-];
+    date: formatDate(job.createdAt),
+  };
+}
 
 export default function RecruiterPage() {
+  const { user } = useAuth();
+  const supabase = useSupabase();
+  const [jobs, setJobs] = useState<Job[]>([]);
+
+  useEffect(() => {
+    const loadJobs = async () => {
+      if (!user?.id) return;
+
+      try {
+        const jobs = await listRecruiterJobs(supabase);
+        const mappedJobs: Job[] = jobs.map(mapApiJobToTable);
+        setJobs(mappedJobs);
+      } catch {
+        setJobs([]);
+      }
+    };
+
+    void loadJobs();
+  }, [supabase, user?.id]);
+
+  const totalJobs = jobs.length;
+  const activeJobs = useMemo(
+    () => jobs.filter((job) => job.status === "Active").length,
+    [jobs],
+  );
+  const closedJobs = useMemo(
+    () => jobs.filter((job) => job.status === "Closed").length,
+    [jobs],
+  );
+
+  const mostAppliedJob = useMemo(() => {
+    return jobs.reduce<Job | null>((currentBest, currentJob) => {
+      if (!currentBest) return currentJob;
+      return currentJob.applicants > currentBest.applicants
+        ? currentJob
+        : currentBest;
+    }, null);
+  }, [jobs]);
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden relative">
       {/* Header */}
@@ -92,9 +106,11 @@ export default function RecruiterPage() {
               Job Listings
             </h2>
           </div>
-          <Button className="bg-primary">
-            <Plus className="w-5 h-5" />
-            Add New Job
+          <Button className="bg-primary" asChild>
+            <Link href="/recruiter/jobs/new">
+              <Plus className="w-5 h-5" />
+              Add New Job
+            </Link>
           </Button>
         </div>
       </header>
@@ -114,13 +130,15 @@ export default function RecruiterPage() {
                   Total Jobs
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-3xl font-bold text-foreground">42</h3>
+                  <h3 className="text-3xl font-bold text-foreground">
+                    {totalJobs}
+                  </h3>
                   <span className="text-emerald-500 text-xs font-medium flex items-center bg-emerald-500/10 px-1.5 py-0.5 rounded">
                     <ArrowUpDown className="w-3 h-3 mr-0.5" /> +12%
                   </span>
                 </div>
                 <p className="text-muted-foreground text-xs mt-2">
-                  All positions created this year
+                  All positions created by your recruiter account
                 </p>
               </div>
             </div>
@@ -137,7 +155,7 @@ export default function RecruiterPage() {
                 <div className="flex items-center gap-3 mt-1">
                   <div className="flex-1 flex flex-col gap-1">
                     <span className="text-2xl font-bold text-foreground">
-                      12
+                      {activeJobs}
                     </span>
                     <span className="text-xs text-emerald-500 font-medium">
                       Active
@@ -146,7 +164,7 @@ export default function RecruiterPage() {
                   <div className="w-px h-8 bg-border"></div>
                   <div className="flex-1 flex flex-col gap-1">
                     <span className="text-2xl font-bold text-muted-foreground">
-                      30
+                      {closedJobs}
                     </span>
                     <span className="text-xs text-red-500 font-medium">
                       Closed
@@ -170,7 +188,7 @@ export default function RecruiterPage() {
                   Most Applied Position
                 </p>
                 <h3 className="text-xl font-bold text-foreground mt-1 truncate">
-                  Senior React Dev
+                  {mostAppliedJob?.title ?? "No data yet"}
                 </h3>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="flex -space-x-2">
@@ -197,7 +215,7 @@ export default function RecruiterPage() {
                     />
                   </div>
                   <span className="text-sm font-semibold text-blue-500">
-                    156 Applicants
+                    {mostAppliedJob?.applicants ?? 0} Applicants
                   </span>
                 </div>
               </div>

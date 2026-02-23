@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 import {
   ArrowUpDown,
   Pencil,
@@ -11,15 +12,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export type Job = {
-  id: number;
+  id: string;
   title: string;
   type: string;
   department: string;
@@ -179,8 +174,11 @@ export const columns: ColumnDef<Job>[] = [
               size="sm"
               className="h-8 w-8 p-0"
               title="Edit"
+              asChild
             >
-              <Pencil className="w-4 h-4" />
+              <Link href={`/recruiter/jobs/${job.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
             </Button>
           )}
           <Button
