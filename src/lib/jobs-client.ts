@@ -37,7 +37,7 @@ function normalizeNullable(value?: string) {
   return normalized ? normalized : null;
 }
 
-async function getAuthenticatedRecruiterEmail(supabase: SupabaseClient) {
+async function getUser(supabase: SupabaseClient) {
   const {
     data: { user },
     error,
@@ -53,16 +53,13 @@ async function getAuthenticatedRecruiterEmail(supabase: SupabaseClient) {
     );
   }
 
-  return {
-    id: user.id,
-    email: user.email ?? null,
-  };
+  return user;
 }
 
 async function ensureRecruiter(
   supabase: SupabaseClient,
 ): Promise<RecruiterRow> {
-  const user = await getAuthenticatedRecruiterEmail(supabase);
+  const user = await getUser(supabase);
   const now = new Date().toISOString();
 
   const { data, error } = await supabase
@@ -70,6 +67,7 @@ async function ensureRecruiter(
     .upsert(
       {
         id: user.id,
+        userid: user.id,
         email: user.email,
         accountType: "recruiter",
         updatedAt: now,

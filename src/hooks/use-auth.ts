@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabase-provider";
 import type { User } from "@supabase/supabase-js";
+import { getUserAccountType, upsertUserProfile } from "@/lib/profile-client";
 
 export type AccountType = "candidate" | "recruiter";
 
@@ -13,16 +14,38 @@ export function getAccountTypeRoute(accountType?: AccountType | null): string {
 export function useAuth() {
   const supabase = useSupabase();
   const [user, setUser] = useState<User | null>(null);
+  const [accountType, setAccountType] = useState<AccountType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    async function syncUserAccountType(nextUser: User | null) {
+      if (!nextUser) {
+        setAccountType(null);
+        return;
+      }
+
+      try {
+        const resolvedAccountType = await getUserAccountType(
+          supabase,
+          nextUser,
+        );
+        setAccountType(resolvedAccountType);
+      } catch {
+        const metadataAccountType = nextUser.user_metadata?.account_type;
+        setAccountType(
+          metadataAccountType === "recruiter" ? "recruiter" : "candidate",
+        );
+      }
+    }
+
     async function getUser() {
       try {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
+        await syncUserAccountType(user);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Auth error");
       } finally {
@@ -36,7 +59,9 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      void syncUserAccountType(nextUser);
     });
 
     return () => {
@@ -52,7 +77,7 @@ export function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -62,6 +87,10 @@ export function useAuth() {
         },
       });
       if (error) throw error;
+
+      if (data.user && data.session) {
+        await upsertUserProfile(supabase, data.user, accountType);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed");
       throw err;
@@ -83,6 +112,15 @@ export function useAuth() {
         password,
       });
       if (error) throw error;
+
+      if (data.user) {
+        const resolvedAccountType =
+          accountType ||
+          (data.user.user_metadata?.account_type as AccountType | undefined) ||
+          "candidate";
+        await upsertUserProfile(supabase, data.user, resolvedAccountType);
+        setAccountType(resolvedAccountType);
+      }
 
       // Only validate/update account type if provided
       if (accountType) {
@@ -122,6 +160,7 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setAccountType(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign out failed");
       throw err;
@@ -154,9 +193,6 @@ export function useAuth() {
       setLoading(false);
     }
   };
-
-  const accountType =
-    (user?.user_metadata?.account_type as AccountType) || null;
 
   return {
     user,

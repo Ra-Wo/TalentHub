@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/context/supabase-provider";
 import { getAccountTypeRoute } from "@/hooks/use-auth";
+import { getUserAccountType, upsertUserProfile } from "@/lib/profile-client";
 
 type AccountType = "candidate" | "recruiter";
 
@@ -17,6 +18,8 @@ export default function AuthCallbackPage() {
       const requestedAccountType = params.get(
         "account_type",
       ) as AccountType | null;
+
+      let resolvedAccountType: AccountType = "candidate";
 
       if (
         requestedAccountType === "candidate" ||
@@ -34,9 +37,23 @@ export default function AuthCallbackPage() {
             },
           });
         }
+
+        if (user) {
+          await upsertUserProfile(supabase, user, requestedAccountType);
+          resolvedAccountType = requestedAccountType;
+        }
+      } else {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          resolvedAccountType = await getUserAccountType(supabase, user);
+          await upsertUserProfile(supabase, user, resolvedAccountType);
+        }
       }
 
-      const dashboardRoute = getAccountTypeRoute(requestedAccountType);
+      const dashboardRoute = getAccountTypeRoute(resolvedAccountType);
       router.replace(dashboardRoute);
     };
 

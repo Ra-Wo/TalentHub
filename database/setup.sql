@@ -1,4 +1,6 @@
 -- CreateEnums
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TYPE "JobStatus" AS ENUM ('Draft', 'Active', 'Closed');
 
 CREATE TYPE "JobApplicationStatus" AS ENUM ('pending', 'reviewing', 'rejected', 'accepted');
@@ -6,7 +8,7 @@ CREATE TYPE "JobApplicationStatus" AS ENUM ('pending', 'reviewing', 'rejected', 
 -- CreateTable
 CREATE TABLE
     "Profile" (
-        "id" TEXT NOT NULL,
+        "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
         "email" TEXT NOT NULL,
         "name" TEXT,
         "userid" TEXT NOT NULL,
@@ -19,7 +21,7 @@ CREATE TABLE
 
 CREATE TABLE
     "Job" (
-        "id" TEXT NOT NULL,
+        "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
         "title" TEXT NOT NULL,
         "description" TEXT,
         "department" TEXT NOT NULL,
@@ -38,7 +40,7 @@ CREATE TABLE
 
 CREATE TABLE
     "JobApplication" (
-        "id" TEXT NOT NULL,
+        "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
         "jobId" TEXT NOT NULL,
         "candidateId" TEXT NOT NULL,
         "status" "JobApplicationStatus" NOT NULL DEFAULT 'pending',
@@ -146,3 +148,24 @@ CREATE POLICY "Allow users to manage their own profile" ON "Profile"
 FOR ALL
 TO public
 USING ("id" = auth.uid()::text);
+
+-- Grant privileges for Supabase API roles
+GRANT USAGE ON SCHEMA public TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated, service_role;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated, service_role;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated, service_role;
+GRANT USAGE ON TYPE "JobStatus" TO authenticated, service_role;
+GRANT USAGE ON TYPE "JobApplicationStatus" TO authenticated, service_role;
+
+-- Set default privileges for future objects created in the public schema
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT USAGE, SELECT ON SEQUENCES TO authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT EXECUTE ON FUNCTIONS TO authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT USAGE ON TYPES TO authenticated, service_role;
