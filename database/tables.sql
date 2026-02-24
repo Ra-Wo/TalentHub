@@ -70,3 +70,79 @@ ALTER TABLE "Job" ADD CONSTRAINT "Job_recruiterId_fkey" FOREIGN KEY ("recruiterI
 ALTER TABLE "JobApplication" ADD CONSTRAINT "JobApplication_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE "JobApplication" ADD CONSTRAINT "JobApplication_candidateId_fkey" FOREIGN KEY ("candidateId") REFERENCES "Profile" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTrigger
+CREATE OR REPLACE FUNCTION update_job_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_job_updated_at_trigger"
+BEFORE UPDATE ON "Job"
+FOR EACH ROW
+EXECUTE FUNCTION update_job_updated_at();
+
+CREATE OR REPLACE FUNCTION update_profile_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_profile_updated_at_trigger"
+BEFORE UPDATE ON "Profile"
+FOR EACH ROW
+EXECUTE FUNCTION update_profile_updated_at();
+
+CREATE OR REPLACE FUNCTION update_job_application_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."appliedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_job_application_updated_at_trigger"
+BEFORE UPDATE ON "JobApplication"
+FOR EACH ROW
+EXECUTE FUNCTION update_job_application_updated_at();
+
+-- Enable RLS (Supabase)
+ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Job" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "JobApplication" ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS Policies (Supabase)
+CREATE POLICY "Allow recruiters to manage their own jobs" ON "Job"
+FOR ALL
+TO public
+USING ("recruiterId" = auth.uid()::text);
+
+CREATE POLICY "Allow candidates to view active jobs" ON "Job"
+FOR SELECT
+TO public
+USING ("status" = 'Active');
+
+CREATE POLICY "Allow candidates to apply for active jobs" ON "JobApplication"
+FOR INSERT
+TO public
+WITH CHECK (EXISTS (SELECT 1 FROM "Job" WHERE "Job"."id" = "JobApplication"."jobId" AND "Job"."status" = 'Active'));
+
+CREATE POLICY "Allow candidates to manage their own applications" ON "JobApplication"
+FOR ALL
+TO public
+USING ("candidateId" = auth.uid()::text);
+
+CREATE POLICY "Allow recruiters to view applications for their jobs" ON "JobApplication"
+FOR SELECT
+TO public
+USING (EXISTS (SELECT 1 FROM "Job" WHERE "Job"."id" = "JobApplication"."jobId" AND "Job"."recruiterId" = auth.uid()::text));
+
+CREATE POLICY "Allow users to manage their own profile" ON "Profile"
+FOR ALL
+TO public
+USING ("id" = auth.uid()::text);
