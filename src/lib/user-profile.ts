@@ -70,3 +70,72 @@ export async function getUserAccountType(
 
   return "candidate";
 }
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string | null;
+  profileImage: string | null;
+  accountType: AccountType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getUserProfile(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<UserProfile> {
+  const { data, error } = await supabase
+    .from(PROFILE_TABLE)
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Profile not found");
+  }
+
+  return data as UserProfile;
+}
+
+export interface UpdateUserProfileInput {
+  name?: string;
+  profileImage?: string;
+}
+
+export async function updateUserProfile(
+  supabase: SupabaseClient,
+  userId: string,
+  updates: UpdateUserProfileInput,
+): Promise<UserProfile> {
+  const now = new Date().toISOString();
+
+  const updateData: Record<string, unknown> = {
+    updatedAt: now,
+  };
+
+  if (updates.name !== undefined) {
+    updateData.name = normalizeNullable(updates.name);
+  }
+
+  if (updates.profileImage !== undefined) {
+    updateData.profileImage = normalizeNullable(updates.profileImage);
+  }
+
+  const { data, error } = await supabase
+    .from(PROFILE_TABLE)
+    .update(updateData)
+    .eq("id", userId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as UserProfile;
+}

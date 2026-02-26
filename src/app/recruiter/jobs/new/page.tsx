@@ -6,7 +6,7 @@ import { FormEvent, useMemo, useState } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import { createRecruiterJob } from "@/lib/jobs-client";
+import { createJob } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,7 +72,7 @@ export default function NewRecruiterJobPage() {
     setSubmitting(true);
 
     try {
-      await createRecruiterJob(supabase, {
+      await createJob(supabase, {
         ...form,
       });
 

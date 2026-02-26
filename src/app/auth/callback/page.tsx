@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/context/supabase-provider";
 import { getAccountTypeRoute } from "@/hooks/use-auth";
-import { getUserAccountType, upsertUserProfile } from "@/lib/profile-client";
+import { getUserAccountType, upsertUserProfile } from "@/lib/user-profile";
 
 type AccountType = "candidate" | "recruiter";
 

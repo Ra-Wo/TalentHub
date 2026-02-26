@@ -2,10 +2,12 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowUpDown,
   Pencil,
   Copy,
+  Link2,
   Archive,
   Trash2,
   RefreshCw,
@@ -23,6 +25,35 @@ export type Job = {
   extraApplicants: string | null;
   date: string;
 };
+
+function CopyApplyLinkButton({ jobId }: { jobId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = async () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const applyLink = `${origin}/jobs/${jobId}/apply`;
+
+    try {
+      await navigator.clipboard.writeText(applyLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-8 w-8 p-0"
+      title={copied ? "Copied" : "Copy Apply Link"}
+      onClick={onCopy}
+    >
+      <Copy className="w-4 h-4" />
+    </Button>
+  );
+}
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -65,7 +96,7 @@ export const columns: ColumnDef<Job>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0"
+        className="h-auto p-0 font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         Job Title
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -75,11 +106,13 @@ export const columns: ColumnDef<Job>[] = [
       const job = row.original;
       return (
         <div className="flex items-center">
-          <div>
-            <div className="text-sm font-medium text-foreground">
+          <div className="space-y-0.5">
+            <div className="text-sm font-semibold text-foreground leading-none">
               {job.title}
             </div>
-            <div className="text-xs text-muted-foreground">{job.type}</div>
+            <div className="text-xs text-muted-foreground leading-none">
+              {job.type}
+            </div>
           </div>
         </div>
       );
@@ -89,7 +122,7 @@ export const columns: ColumnDef<Job>[] = [
     accessorKey: "department",
     header: "Department",
     cell: ({ row }) => (
-      <div className="text-sm text-foreground/80">
+      <div className="text-sm font-medium text-foreground/85">
         {row.getValue("department")}
       </div>
     ),
@@ -105,7 +138,7 @@ export const columns: ColumnDef<Job>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0"
+        className="h-auto p-0 font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         Applicants
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -147,7 +180,7 @@ export const columns: ColumnDef<Job>[] = [
     accessorKey: "date",
     header: "Created Date",
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm font-medium text-muted-foreground">
         {row.getValue("date")}
       </div>
     ),
@@ -185,10 +218,14 @@ export const columns: ColumnDef<Job>[] = [
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            title="Duplicate"
+            title="Open Apply Link"
+            asChild
           >
-            <Copy className="w-4 h-4" />
+            <Link href={`/jobs/${job.id}/apply`} target="_blank">
+              <Link2 className="w-4 h-4" />
+            </Link>
           </Button>
+          <CopyApplyLinkButton jobId={job.id} />
           {job.status === "Draft" ? (
             <Button
               variant="ghost"

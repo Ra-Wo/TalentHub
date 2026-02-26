@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
-import { useSupabase } from "@/context/supabase-provider";
+import { useRecruiterJobs } from "@/hooks/use-recruiter-jobs";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,7 +18,7 @@ import {
   columns,
   type Job,
 } from "@/components/layout/recruiter-data-table/columns";
-import { listRecruiterJobs, type RecruiterJobRow } from "@/lib/jobs-client";
+import type { RecruiterJobRow } from "@/lib/jobs";
 import { Plus, Briefcase, PieChart, Flame, ArrowUpDown } from "lucide-react";
 
 function formatDate(input: string) {
@@ -46,25 +45,12 @@ function mapApiJobToTable(job: RecruiterJobRow): Job {
 }
 
 export default function RecruiterPage() {
-  const { user } = useAuth();
-  const supabase = useSupabase();
-  const [jobs, setJobs] = useState<Job[]>([]);
-
-  useEffect(() => {
-    const loadJobs = async () => {
-      if (!user?.id) return;
-
-      try {
-        const jobs = await listRecruiterJobs(supabase);
-        const mappedJobs: Job[] = jobs.map(mapApiJobToTable);
-        setJobs(mappedJobs);
-      } catch {
-        setJobs([]);
-      }
-    };
-
-    void loadJobs();
-  }, [supabase, user?.id]);
+  const {
+    jobs: rawJobs,
+    departments,
+    isLoading: isJobsLoading,
+  } = useRecruiterJobs();
+  const jobs = useMemo(() => rawJobs.map(mapApiJobToTable), [rawJobs]);
 
   const totalJobs = jobs.length;
   const activeJobs = useMemo(
@@ -75,6 +61,16 @@ export default function RecruiterPage() {
     () => jobs.filter((job) => job.status === "Closed").length,
     [jobs],
   );
+
+  const activeJobsPercentage = useMemo(() => {
+    if (totalJobs === 0) return 0;
+    return Math.round((activeJobs / totalJobs) * 100);
+  }, [activeJobs, totalJobs]);
+
+  const closedJobsPercentage = useMemo(() => {
+    if (totalJobs === 0) return 0;
+    return Math.round((closedJobs / totalJobs) * 100);
+  }, [closedJobs, totalJobs]);
 
   const mostAppliedJob = useMemo(() => {
     return jobs.reduce<Job | null>((currentBest, currentJob) => {
@@ -172,8 +168,14 @@ export default function RecruiterPage() {
                   </div>
                 </div>
                 <div className="w-full h-1.5 bg-muted rounded-full mt-3 overflow-hidden flex">
-                  <div className="h-full bg-emerald-500 w-[30%]"></div>
-                  <div className="h-full bg-red-500 w-[70%]"></div>
+                  <div
+                    className="h-full bg-emerald-500"
+                    style={{ width: `${activeJobsPercentage}%` }}
+                  ></div>
+                  <div
+                    className="h-full bg-red-500"
+                    style={{ width: `${closedJobsPercentage}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -223,7 +225,12 @@ export default function RecruiterPage() {
           </div>
 
           {/* Job Management Section */}
-          <DataTable columns={columns} data={jobs} />
+          <DataTable
+            columns={columns}
+            data={jobs}
+            departments={departments}
+            isLoading={isJobsLoading}
+          />
         </div>
       </div>
     </div>

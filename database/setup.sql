@@ -20,6 +20,16 @@ CREATE TABLE
     );
 
 CREATE TABLE
+    "Department" (
+        "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
+        "name" TEXT NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "Department_pkey" PRIMARY KEY ("id"),
+        CONSTRAINT "Department_name_key" UNIQUE ("name")
+    );
+
+CREATE TABLE
     "Job" (
         "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
         "title" TEXT NOT NULL,
@@ -53,6 +63,8 @@ CREATE TABLE
 
 -- CreateIndexs
 CREATE INDEX "Profile_email_idx" ON "Profile" ("userid");
+
+CREATE INDEX "Department_name_idx" ON "Department" ("name");
 
 CREATE INDEX "Job_recruiterId_idx" ON "Job" ("recruiterId");
 
@@ -100,6 +112,43 @@ BEFORE UPDATE ON "Profile"
 FOR EACH ROW
 EXECUTE FUNCTION update_profile_updated_at();
 
+CREATE OR REPLACE FUNCTION update_department_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_department_updated_at_trigger"
+BEFORE UPDATE ON "Department"
+FOR EACH ROW
+EXECUTE FUNCTION update_department_updated_at();
+
+CREATE OR REPLACE FUNCTION sync_department_from_job()
+RETURNS TRIGGER AS $$
+DECLARE
+    normalized_department TEXT;
+BEGIN
+    normalized_department := TRIM(NEW."department");
+
+    IF normalized_department <> '' THEN
+        INSERT INTO "Department" ("name", "updatedAt")
+        VALUES (normalized_department, CURRENT_TIMESTAMP)
+        ON CONFLICT ("name") DO UPDATE
+        SET "updatedAt" = CURRENT_TIMESTAMP;
+    END IF;
+
+    NEW."department" = normalized_department;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER "sync_department_from_job_trigger"
+BEFORE INSERT OR UPDATE OF "department" ON "Job"
+FOR EACH ROW
+EXECUTE FUNCTION sync_department_from_job();
+
 CREATE OR REPLACE FUNCTION update_job_application_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -115,6 +164,7 @@ EXECUTE FUNCTION update_job_application_updated_at();
 
 -- Enable RLS (Supabase)
 ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Department" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Job" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "JobApplication" ENABLE ROW LEVEL SECURITY;
 
@@ -148,6 +198,64 @@ CREATE POLICY "Allow users to manage their own profile" ON "Profile"
 FOR ALL
 TO public
 USING ("id" = auth.uid()::text);
+
+CREATE POLICY "Allow authenticated users to read departments" ON "Department"
+FOR SELECT
+TO authenticated
+USING (true);
+
+-- Create Supabase Storage bucket for resumes
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('resumes', 'resumes', false, 5242880, ARRAY['application/pdf'])
+ON CONFLICT (id) DO UPDATE
+SET
+    public = EXCLUDED.public,
+    file_size_limit = EXCLUDED.file_size_limit,
+    allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+-- Create Storage RLS Policies (Supabase)
+CREATE POLICY "Allow candidates to upload own resumes" ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (
+    bucket_id = 'resumes'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+CREATE POLICY "Allow candidates to read own resumes" ON storage.objects
+FOR SELECT
+TO authenticated
+USING (
+    bucket_id = 'resumes'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+CREATE POLICY "Allow candidates to update own resumes" ON storage.objects
+FOR UPDATE
+TO authenticated
+USING (
+    bucket_id = 'resumes'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+)
+WITH CHECK (
+    bucket_id = 'resumes'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+CREATE POLICY "Allow candidates to delete own resumes" ON storage.objects
+FOR DELETE
+TO authenticated
+USING (
+    bucket_id = 'resumes'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Sync existing Job departments into Department catalog
+INSERT INTO "Department" ("name", "updatedAt")
+SELECT DISTINCT TRIM("department"), CURRENT_TIMESTAMP
+FROM "Job"
+WHERE TRIM("department") <> ''
+ON CONFLICT ("name") DO NOTHING;
 
 -- Grant privileges for Supabase API roles
 GRANT USAGE ON SCHEMA public TO authenticated, service_role;

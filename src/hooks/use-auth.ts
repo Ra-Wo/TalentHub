@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabase-provider";
 import type { User } from "@supabase/supabase-js";
-import { getUserAccountType, upsertUserProfile } from "@/lib/profile-client";
+import { getUserAccountType, upsertUserProfile } from "@/lib/user-profile";
 
 export type AccountType = "candidate" | "recruiter";
 

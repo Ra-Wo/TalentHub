@@ -6,7 +6,8 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import { getRecruiterJobById, updateRecruiterJob } from "@/lib/jobs-client";
+import { useRecruiterJob } from "@/hooks/use-recruiter-job";
+import { updateJob } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,41 +50,30 @@ export default function EditJobPage() {
 
   const jobId = params.jobId as string;
 
+  const { job, isLoading: loading, error: loadError } = useRecruiterJob(jobId);
+
   const [form, setForm] = useState<JobFormState>(INITIAL_FORM);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchJob = async () => {
-      try {
-        setLoading(true);
-        const job = await getRecruiterJobById(supabase, jobId);
-        setForm({
-          title: job.title || "",
-          department: job.department || "",
-          jobType: job.jobType || "",
-          location: job.location || "",
-          locationType: job.locationType || "Remote",
-          salary: job.salary || "",
-          status: job.status || "Draft",
-          description: job.description || "",
-        });
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to load job. Please try again.";
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (jobId) {
-      fetchJob();
+    if (job) {
+      setForm({
+        title: job.title || "",
+        department: job.department || "",
+        jobType: job.jobType || "",
+        location: job.location || "",
+        locationType: job.locationType || "Remote",
+        salary: job.salary || "",
+        status: job.status || "Draft",
+        description: job.description || "",
+      });
     }
-  }, [jobId, supabase]);
+  }, [job]);
+
+  useEffect(() => {
+    if (loadError) setError(loadError);
+  }, [loadError]);
 
   const canSubmit = useMemo(() => {
     return Boolean(
@@ -108,7 +98,7 @@ export default function EditJobPage() {
     setSubmitting(true);
 
     try {
-      await updateRecruiterJob(supabase, jobId, {
+      await updateJob(supabase, jobId, {
         ...form,
       });
 

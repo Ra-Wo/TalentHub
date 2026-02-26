@@ -3,20 +3,27 @@
 import { SignInForm } from "@/components/feature/auth/signin-form";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SignInPage() {
   const { isAuthenticated, loading, accountType } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
+      if (redirectTo?.startsWith("/")) {
+        router.push(redirectTo);
+        return;
+      }
+
       const dashboardRoute =
         accountType === "recruiter" ? "/recruiter" : "/candidate";
       router.push(dashboardRoute);
     }
-  }, [isAuthenticated, loading, accountType, router]);
+  }, [isAuthenticated, loading, accountType, router, redirectTo]);
 
   if (loading) {
     return (
