@@ -230,6 +230,19 @@ USING (
     AND (storage.foldername(name))[1] = auth.uid()::text
 );
 
+CREATE POLICY "Allow recruiters to read resumes for own jobs" ON storage.objects
+FOR SELECT
+TO authenticated
+USING (
+    bucket_id = 'resumes'
+    AND EXISTS (
+        SELECT 1
+        FROM "Job"
+        WHERE "Job"."id" = (storage.foldername(name))[2]
+          AND "Job"."recruiterId" = auth.uid()::text
+    )
+);
+
 CREATE POLICY "Allow candidates to update own resumes" ON storage.objects
 FOR UPDATE
 TO authenticated

@@ -59,6 +59,41 @@ export type JobApplicationInput = {
   coverLetter?: string;
 };
 
+export type CandidateApplicationRow = {
+  id: string;
+  status: "pending" | "reviewing" | "rejected" | "accepted";
+  appliedAt: string;
+  resume: string | null;
+  coverLetter: string | null;
+  job: {
+    id: string;
+    title: string;
+    department: string;
+    jobType: string;
+    location: string | null;
+    locationType: "Remote" | "On-site" | "Hybrid";
+    salary: string | null;
+    status: "Draft" | "Active" | "Closed";
+    createdAt: string;
+  };
+};
+
+export type RecruiterApplicationRow = {
+  id: string;
+  status: "pending" | "reviewing" | "rejected" | "accepted";
+  appliedAt: string;
+  resume: string | null;
+  coverLetter: string | null;
+  candidateId: string;
+  job: {
+    id: string;
+    title: string;
+    department: string;
+    jobType: string;
+    status: "Draft" | "Active" | "Closed";
+  };
+};
+
 function normalizeNullable(value?: string) {
   const normalized = value?.trim();
   return normalized ? normalized : null;
@@ -144,6 +179,28 @@ async function ensureCandidate(
   return profile;
 }
 
+async function getApplicantCountMap(
+  supabase: SupabaseClient,
+  jobIds: string[],
+): Promise<Record<string, number>> {
+  if (jobIds.length === 0) return {};
+
+  const { data, error } = await supabase
+    .from("JobApplication")
+    .select("jobId")
+    .in("jobId", jobIds);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).reduce<Record<string, number>>((accumulator, row) => {
+    const key = row.jobId as string;
+    accumulator[key] = (accumulator[key] ?? 0) + 1;
+    return accumulator;
+  }, {});
+}
+
 export async function fetchRecruiterJobs(
   supabase: SupabaseClient,
 ): Promise<RecruiterJobRow[]> {
@@ -159,7 +216,16 @@ export async function fetchRecruiterJobs(
 
   if (error) throw new Error(error.message);
 
-  return (data ?? []) as RecruiterJobRow[];
+  const jobs = (data ?? []) as RecruiterJobRow[];
+  const applicantCountMap = await getApplicantCountMap(
+    supabase,
+    jobs.map((job) => job.id),
+  );
+
+  return jobs.map((job) => ({
+    ...job,
+    applicantCount: applicantCountMap[job.id] ?? 0,
+  }));
 }
 
 export async function fetchPublicJobById(
@@ -180,6 +246,199 @@ export async function fetchPublicJobById(
   }
 
   return data as PublicJobRow;
+}
+
+export async function fetchCandidateApplications(
+  supabase: SupabaseClient,
+): Promise<CandidateApplicationRow[]> {
+  const candidate = await ensureCandidate(supabase);
+
+  const { data, error } = await supabase
+    .from("JobApplication")
+    .select(
+      `
+      id,
+      status,
+      appliedAt,
+      resume,
+      coverLetter,
+      job:Job(
+        id,
+        title,
+        department,
+        jobType,
+        location,
+        locationType,
+        salary,
+        status,
+        createdAt
+      )
+    `,
+    )
+    .eq("candidateId", candidate.id)
+    .order("appliedAt", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    status: CandidateApplicationRow["status"];
+    appliedAt: string;
+    resume: string | null;
+    coverLetter: string | null;
+    job:
+      | CandidateApplicationRow["job"]
+      | CandidateApplicationRow["job"][]
+      | null;
+  }>;
+
+  return rows
+    .map((row) => {
+      const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+      if (!normalizedJob) {
+        return null;
+      }
+
+      return {
+        id: row.id,
+        status: row.status,
+        appliedAt: row.appliedAt,
+        resume: row.resume,
+        coverLetter: row.coverLetter,
+        job: normalizedJob,
+      } satisfies CandidateApplicationRow;
+    })
+    .filter((row): row is CandidateApplicationRow => row !== null);
+}
+
+export async function fetchRecruiterApplications(
+  supabase: SupabaseClient,
+): Promise<RecruiterApplicationRow[]> {
+  await ensureRecruiter(supabase);
+
+  const { data, error } = await supabase
+    .from("JobApplication")
+    .select(
+      `
+      id,
+      status,
+      appliedAt,
+      resume,
+      coverLetter,
+      candidateId,
+      job:Job(
+        id,
+        title,
+        department,
+        jobType,
+        status
+      )
+    `,
+    )
+    .order("appliedAt", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    status: RecruiterApplicationRow["status"];
+    appliedAt: string;
+    resume: string | null;
+    coverLetter: string | null;
+    candidateId: string;
+    job:
+      | RecruiterApplicationRow["job"]
+      | RecruiterApplicationRow["job"][]
+      | null;
+  }>;
+
+  return rows
+    .map((row) => {
+      const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+      if (!normalizedJob) {
+        return null;
+      }
+
+      return {
+        id: row.id,
+        status: row.status,
+        appliedAt: row.appliedAt,
+        resume: row.resume,
+        coverLetter: row.coverLetter,
+        candidateId: row.candidateId,
+        job: normalizedJob,
+      } satisfies RecruiterApplicationRow;
+    })
+    .filter((row): row is RecruiterApplicationRow => row !== null);
+}
+
+export async function fetchRecruiterApplicationsByJobId(
+  supabase: SupabaseClient,
+  jobId: string,
+): Promise<RecruiterApplicationRow[]> {
+  await fetchRecruiterJobById(supabase, jobId);
+
+  const { data, error } = await supabase
+    .from("JobApplication")
+    .select(
+      `
+      id,
+      status,
+      appliedAt,
+      resume,
+      coverLetter,
+      candidateId,
+      job:Job(
+        id,
+        title,
+        department,
+        jobType,
+        status
+      )
+    `,
+    )
+    .eq("jobId", jobId)
+    .order("appliedAt", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    status: RecruiterApplicationRow["status"];
+    appliedAt: string;
+    resume: string | null;
+    coverLetter: string | null;
+    candidateId: string;
+    job:
+      | RecruiterApplicationRow["job"]
+      | RecruiterApplicationRow["job"][]
+      | null;
+  }>;
+
+  return rows
+    .map((row) => {
+      const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+      if (!normalizedJob) {
+        return null;
+      }
+
+      return {
+        id: row.id,
+        status: row.status,
+        appliedAt: row.appliedAt,
+        resume: row.resume,
+        coverLetter: row.coverLetter,
+        candidateId: row.candidateId,
+        job: normalizedJob,
+      } satisfies RecruiterApplicationRow;
+    })
+    .filter((row): row is RecruiterApplicationRow => row !== null);
 }
 
 export async function fetchDepartments(
@@ -214,7 +473,13 @@ export async function fetchRecruiterJobById(
     throw new Error(error?.message ?? "Failed to load job.");
   }
 
-  return data as RecruiterJobRow;
+  const job = data as RecruiterJobRow;
+  const applicantCountMap = await getApplicantCountMap(supabase, [job.id]);
+
+  return {
+    ...job,
+    applicantCount: applicantCountMap[job.id] ?? 0,
+  };
 }
 
 export async function createJob(

@@ -46,6 +46,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   departments?: string[];
   isLoading?: boolean;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<
@@ -56,6 +57,7 @@ export function DataTable<
   data,
   departments = [],
   isLoading = false,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -229,6 +231,7 @@ export function DataTable<
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="hover:bg-accent/40 transition-colors group"
+                  onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-4 align-middle">

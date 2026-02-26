@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,19 @@ import {
   columns,
   type Job,
 } from "@/components/layout/recruiter-data-table/columns";
-import type { RecruiterJobRow } from "@/lib/jobs";
-import { Plus, Briefcase, PieChart, Flame, ArrowUpDown } from "lucide-react";
+import { type RecruiterJobRow } from "@/lib/jobs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Plus,
+  Briefcase,
+  PieChart,
+  Flame,
+  ArrowUpDown,
+  X,
+  MapPin,
+  CalendarDays,
+  Building2,
+} from "lucide-react";
 
 function formatDate(input: string) {
   const date = new Date(input);
@@ -51,6 +62,16 @@ export default function RecruiterPage() {
     isLoading: isJobsLoading,
   } = useRecruiterJobs();
   const jobs = useMemo(() => rawJobs.map(mapApiJobToTable), [rawJobs]);
+  const jobsById = useMemo(
+    () => new Map(rawJobs.map((job) => [job.id, job])),
+    [rawJobs],
+  );
+
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+
+  const selectedJob = selectedJobId
+    ? (jobsById.get(selectedJobId) ?? null)
+    : null;
 
   const totalJobs = jobs.length;
   const activeJobs = useMemo(
@@ -230,9 +251,95 @@ export default function RecruiterPage() {
             data={jobs}
             departments={departments}
             isLoading={isJobsLoading}
+            onRowClick={(job) => setSelectedJobId(job.id)}
           />
         </div>
       </div>
+
+      {selectedJob ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40"
+            onClick={() => setSelectedJobId(null)}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-xl border-l border-border bg-background shadow-2xl">
+            <div className="flex h-full flex-col">
+              <div className="border-b border-border px-6 py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Job Details</p>
+                    <h3 className="mt-1 text-xl font-semibold text-foreground">
+                      {selectedJob.title}
+                    </h3>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="h-3.5 w-3.5" />
+                        {selectedJob.department}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {selectedJob.location?.trim() ||
+                          selectedJob.locationType}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        Created {formatDate(selectedJob.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => setSelectedJobId(null)}
+                    title="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Badge variant="outline">{selectedJob.status}</Badge>
+                  <Badge variant="outline">{selectedJob.jobType}</Badge>
+                  <Badge variant="outline">
+                    {selectedJob.applicantCount} Applications
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">
+                    Description
+                  </p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedJob.description?.trim() ||
+                      "No description provided."}
+                  </p>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between gap-3 rounded-lg border border-border/70 p-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Applications
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Open the dedicated page to review all applications for
+                      this job.
+                    </p>
+                  </div>
+                  <Button asChild>
+                    <Link
+                      href={`/recruiter/jobs/${selectedJob.id}/applications`}
+                    >
+                      View Applications
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

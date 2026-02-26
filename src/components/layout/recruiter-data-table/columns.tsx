@@ -191,7 +191,10 @@ export const columns: ColumnDef<Job>[] = [
     cell: ({ row }) => {
       const job = row.original;
       return (
-        <div className="flex items-center justify-end gap-2">
+        <div
+          className="flex items-center justify-end gap-2"
+          onClick={(event) => event.stopPropagation()}
+        >
           {job.status === "Closed" ? (
             <Button
               variant="ghost"
