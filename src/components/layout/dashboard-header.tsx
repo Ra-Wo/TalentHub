@@ -1,6 +1,8 @@
 "use client";
 
-import { useAuth } from "@/hooks/use-auth";
+import { getAccountTypeRoute, useAuth } from "@/hooks/use-auth";
+import { useSupabase } from "@/context/supabase-provider";
+import { getUserProfile, type UserProfile } from "@/lib/user-profile";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,27 +15,67 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Moon, Sun, ChevronDown, LogOut, Settings } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  ChevronDown,
+  LogOut,
+  Settings,
+  ArrowRightLeft,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 export function DashboardHeader() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, accountType, switchAccountType } = useAuth();
+  const supabase = useSupabase();
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
   // user data
   const rawFullName = user?.user_metadata["full_name"];
   const rawName = user?.user_metadata["name"];
   const userName =
+    profile?.name ||
     (typeof rawFullName === "string" && rawFullName.trim()) ||
     (typeof rawName === "string" && rawName.trim()) ||
     (user?.email?.split("@")[0] ?? "Account");
-  const email = user?.email || "";
+  const email = profile?.email || user?.email || "";
   const avatarUrl =
-    typeof user?.user_metadata["avatar_url"] === "string"
+    profile?.profileImage ||
+    (typeof user?.user_metadata["avatar_url"] === "string"
       ? user.user_metadata["avatar_url"]
-      : "";
+      : "");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProfile() {
+      if (!user?.id) {
+        setProfile(null);
+        return;
+      }
+
+      try {
+        const data = await getUserProfile(supabase, user.id);
+        if (!cancelled) {
+          setProfile(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setProfile(null);
+        }
+      }
+    }
+
+    void loadProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, user?.id]);
 
   useEffect(() => {
     setMounted(true);
@@ -44,6 +86,17 @@ export function DashboardHeader() {
   const handleSignOut = async () => {
     await signOut();
     router.push("/");
+  };
+
+  const handleSwitchAccount = async () => {
+    if (!accountType) return;
+
+    const nextAccountType =
+      accountType === "recruiter" ? "candidate" : "recruiter";
+
+    await switchAccountType(nextAccountType);
+    router.push(getAccountTypeRoute(nextAccountType));
+    router.refresh();
   };
 
   return (
@@ -107,6 +160,15 @@ export function DashboardHeader() {
                     <Settings className="h-4 w-4" />
                     Settings
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleSwitchAccount}
+                  className="cursor-pointer"
+                >
+                  <ArrowRightLeft className="h-4 w-4" />
+                  {accountType === "recruiter"
+                    ? "Switch to Candidate"
+                    : "Switch to Recruiter"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setTheme(isDark ? "light" : "dark")}

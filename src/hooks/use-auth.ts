@@ -169,6 +169,39 @@ export function useAuth() {
     }
   };
 
+  const switchAccountType = async (nextAccountType: AccountType) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const currentUser = user ?? (await supabase.auth.getUser()).data.user;
+
+      if (!currentUser) {
+        throw new Error("You must be signed in to switch account type.");
+      }
+
+      const { data, error } = await supabase.auth.updateUser({
+        data: {
+          ...currentUser.user_metadata,
+          account_type: nextAccountType,
+        },
+      });
+
+      if (error) throw error;
+
+      const updatedUser = data.user ?? currentUser;
+      await upsertUserProfile(supabase, updatedUser, nextAccountType);
+
+      setUser(updatedUser);
+      setAccountType(nextAccountType);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to switch account");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signInWithGoogle = async (accountType?: AccountType) => {
     setLoading(true);
     setError(null);
@@ -202,6 +235,7 @@ export function useAuth() {
     signUp,
     signIn,
     signOut,
+    switchAccountType,
     signInWithGoogle,
     isAuthenticated: !!user,
   };
