@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { useSupabase } from "@/context/supabase-provider";
-import {
-  fetchRecruiterApplications,
-  type RecruiterApplicationRow,
-} from "@/lib/jobs";
+import { useRecruiterApplications } from "@/hooks/job-applications/use-recruiter-applications";
+import { type RecruiterApplicationRow } from "@/lib/jobs/applications";
 
 function formatDate(input: string) {
   const date = new Date(input);
@@ -61,48 +58,11 @@ function maskCandidateId(id: string) {
 }
 
 export default function RecruiterApplicationsPage() {
-  const supabase = useSupabase();
-
-  const [applications, setApplications] = useState<RecruiterApplicationRow[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadApplications() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const rows = await fetchRecruiterApplications(supabase);
-        if (!cancelled) {
-          setApplications(rows);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load recruiter applications.",
-          );
-          setApplications([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadApplications();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase]);
+  const {
+    applications,
+    isLoading: loading,
+    error,
+  } = useRecruiterApplications();
 
   const totalApplications = applications.length;
   const pendingApplications = useMemo(

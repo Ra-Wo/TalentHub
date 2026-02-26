@@ -13,12 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useSupabase } from "@/context/supabase-provider";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  applyToJob,
-  fetchPublicJobById,
-  type PublicJobRow,
-  uploadCandidateResumePdf,
-} from "@/lib/jobs";
+import { applyToJob, uploadCandidateResumePdf } from "@/lib/jobs/applications";
+import { fetchPublicJobById, type PublicJobRow } from "@/lib/jobs/jobs";
 import { Briefcase, CalendarDays, MapPin, Wallet } from "lucide-react";
 
 function formatDate(input: string) {

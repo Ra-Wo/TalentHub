@@ -6,7 +6,7 @@ import { FormEvent, useMemo, useState } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import { createJob } from "@/lib/jobs";
+import { createJob } from "@/lib/jobs/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

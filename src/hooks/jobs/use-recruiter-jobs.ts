@@ -7,7 +7,7 @@ import {
   fetchDepartments,
   fetchRecruiterJobs,
   type RecruiterJobRow,
-} from "@/lib/jobs";
+} from "@/lib/jobs/jobs";
 
 type UseRecruiterJobsResult = {
   jobs: RecruiterJobRow[];

@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
+import { useCandidateApplications } from "@/hooks/job-applications/use-candidate-applications";
 import { getUserProfile } from "@/lib/user-profile";
-import {
-  fetchCandidateApplications,
-  type CandidateApplicationRow,
-} from "@/lib/jobs";
+import { type CandidateApplicationRow } from "@/lib/jobs/applications";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -66,13 +64,13 @@ function getStatusBadge(status: CandidateApplicationRow["status"]) {
 export default function CandidatePage() {
   const { user } = useAuth();
   const supabase = useSupabase();
+  const {
+    applications,
+    isLoading: loading,
+    error,
+  } = useCandidateApplications();
 
-  const [applications, setApplications] = useState<CandidateApplicationRow[]>(
-    [],
-  );
   const [displayName, setDisplayName] = useState("there");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -121,39 +119,6 @@ export default function CandidatePage() {
       cancelled = true;
     };
   }, [supabase, user]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadApplications() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const rows = await fetchCandidateApplications(supabase);
-        if (!cancelled) {
-          setApplications(rows.filter((row) => row.job));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load applications.",
-          );
-          setApplications([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadApplications();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase]);
 
   const totalApplied = applications.length;
   const reviewingCount = applications.filter(

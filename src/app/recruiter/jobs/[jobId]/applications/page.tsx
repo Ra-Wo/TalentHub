@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -9,15 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { useSupabase } from "@/context/supabase-provider";
-import {
-  fetchRecruiterApplicationsByJobId,
-  fetchRecruiterJobById,
-  type RecruiterApplicationRow,
-  type RecruiterJobRow,
-} from "@/lib/jobs";
-
-const RESUME_BUCKET =
-  process.env.NEXT_PUBLIC_SUPABASE_RESUME_BUCKET || "resumes";
+import { useRecruiterJobApplications } from "@/hooks/job-applications/use-recruiter-job-applications";
+import { type RecruiterApplicationRow } from "@/lib/jobs/applications";
+import { RESUME_BUCKET } from "@/lib/jobs/shared";
 
 function formatDate(input: string) {
   const date = new Date(input);
@@ -122,13 +116,13 @@ export default function RecruiterJobApplicationsPage() {
   const jobId = params.jobId as string;
 
   const supabase = useSupabase();
-
-  const [job, setJob] = useState<RecruiterJobRow | null>(null);
-  const [applications, setApplications] = useState<RecruiterApplicationRow[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    job,
+    applications,
+    isLoading: loading,
+    error: loadError,
+  } = useRecruiterJobApplications(jobId);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [openingResumeFor, setOpeningResumeFor] = useState<string | null>(null);
 
   const handleOpenResume = async (
@@ -139,7 +133,7 @@ export default function RecruiterJobApplicationsPage() {
     if (!access) return;
 
     setOpeningResumeFor(applicationId);
-    setError(null);
+    setActionError(null);
 
     try {
       const attempts = access.storageCandidates;
@@ -173,7 +167,7 @@ export default function RecruiterJobApplicationsPage() {
 
       window.open(signedUrl, "_blank", "noopener,noreferrer");
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to open candidate resume.",
       );
     } finally {
@@ -181,46 +175,7 @@ export default function RecruiterJobApplicationsPage() {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadJobApplications() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const [jobData, rows] = await Promise.all([
-          fetchRecruiterJobById(supabase, jobId),
-          fetchRecruiterApplicationsByJobId(supabase, jobId),
-        ]);
-
-        if (!cancelled) {
-          setJob(jobData);
-          setApplications(rows);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load applications for this job.",
-          );
-          setJob(null);
-          setApplications([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadJobApplications();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [jobId, supabase]);
+  const displayError = actionError || loadError;
 
   return (
     <div className="space-y-6">
@@ -252,8 +207,8 @@ export default function RecruiterJobApplicationsPage() {
             <div className="py-10 flex items-center justify-center">
               <Spinner />
             </div>
-          ) : error ? (
-            <p className="text-sm text-red-500">{error}</p>
+          ) : displayError ? (
+            <p className="text-sm text-red-500">{displayError}</p>
           ) : applications.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No applications yet for this job.

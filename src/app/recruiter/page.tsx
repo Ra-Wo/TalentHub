@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useRecruiterJobs } from "@/hooks/use-recruiter-jobs";
+import { useRecruiterJobs } from "@/hooks/jobs";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +18,7 @@ import {
   columns,
   type Job,
 } from "@/components/layout/recruiter-data-table/columns";
-import { type RecruiterJobRow } from "@/lib/jobs";
+import { type RecruiterJobRow } from "@/lib/jobs/jobs";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
