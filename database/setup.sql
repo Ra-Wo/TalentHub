@@ -40,7 +40,7 @@ CREATE TABLE
         "locationType" TEXT NOT NULL DEFAULT 'Remote',
         "salary" TEXT,
         "status" "JobStatus" NOT NULL DEFAULT 'Draft',
-        "applicantCount" INTEGER NOT NULL DEFAULT 0,
+        "jobApplicationCount" INTEGER NOT NULL DEFAULT 0,
         "recruiterId" TEXT NOT NULL,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -162,6 +162,42 @@ BEFORE UPDATE ON "JobApplication"
 FOR EACH ROW
 EXECUTE FUNCTION update_job_application_updated_at();
 
+CREATE OR REPLACE FUNCTION sync_job_application_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE "Job"
+        SET "jobApplicationCount" = "jobApplicationCount" + 1
+        WHERE "id" = NEW."jobId";
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE "Job"
+        SET "jobApplicationCount" = GREATEST("jobApplicationCount" - 1, 0)
+        WHERE "id" = OLD."jobId";
+        RETURN OLD;
+    ELSIF TG_OP = 'UPDATE' THEN
+        IF NEW."jobId" <> OLD."jobId" THEN
+            UPDATE "Job"
+            SET "jobApplicationCount" = GREATEST("jobApplicationCount" - 1, 0)
+            WHERE "id" = OLD."jobId";
+
+            UPDATE "Job"
+            SET "jobApplicationCount" = "jobApplicationCount" + 1
+            WHERE "id" = NEW."jobId";
+        END IF;
+
+        RETURN NEW;
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "sync_job_application_count_trigger"
+AFTER INSERT OR DELETE OR UPDATE OF "jobId" ON "JobApplication"
+FOR EACH ROW
+EXECUTE FUNCTION sync_job_application_count();
+
 -- Enable RLS (Supabase)
 ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Department" ENABLE ROW LEVEL SECURITY;
@@ -269,6 +305,19 @@ SELECT DISTINCT TRIM("department"), CURRENT_TIMESTAMP
 FROM "Job"
 WHERE TRIM("department") <> ''
 ON CONFLICT ("name") DO NOTHING;
+
+-- Backfill job application counters
+UPDATE "Job"
+SET "jobApplicationCount" = 0;
+
+UPDATE "Job" j
+SET "jobApplicationCount" = counts.total
+FROM (
+    SELECT "jobId", COUNT(*)::INTEGER AS total
+    FROM "JobApplication"
+    GROUP BY "jobId"
+) AS counts
+WHERE j."id" = counts."jobId";
 
 -- Grant privileges for Supabase API roles
 GRANT USAGE ON SCHEMA public TO authenticated, service_role;

@@ -17,7 +17,7 @@ export type RecruiterJobRow = {
   locationType: "Remote" | "On-site" | "Hybrid";
   salary: string | null;
   status: "Draft" | "Active" | "Closed";
-  applicantCount: number;
+  jobApplicationCount: number;
   createdAt: string;
 };
 
@@ -45,28 +45,6 @@ export type JobMutationInput = {
   status: "Draft" | "Active" | "Closed";
 };
 
-async function getApplicantCountMap(
-  supabase: SupabaseClient,
-  jobIds: string[],
-): Promise<Record<string, number>> {
-  if (jobIds.length === 0) return {};
-
-  const { data, error } = await supabase
-    .from("JobApplication")
-    .select("jobId")
-    .in("jobId", jobIds);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return (data ?? []).reduce<Record<string, number>>((accumulator, row) => {
-    const key = row.jobId as string;
-    accumulator[key] = (accumulator[key] ?? 0) + 1;
-    return accumulator;
-  }, {});
-}
-
 export async function fetchRecruiterJobs(
   supabase: SupabaseClient,
 ): Promise<RecruiterJobRow[]> {
@@ -75,23 +53,14 @@ export async function fetchRecruiterJobs(
   const { data, error } = await supabase
     .from(JOB_TABLE)
     .select(
-      "id,title,department,jobType,location,locationType,status,applicantCount,createdAt,description,salary",
+      "id,title,department,jobType,location,locationType,status,jobApplicationCount,createdAt,description,salary",
     )
     .eq("recruiterId", recruiter.id)
     .order("createdAt", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  const jobs = (data ?? []) as RecruiterJobRow[];
-  const applicantCountMap = await getApplicantCountMap(
-    supabase,
-    jobs.map((job) => job.id),
-  );
-
-  return jobs.map((job) => ({
-    ...job,
-    applicantCount: applicantCountMap[job.id] ?? 0,
-  }));
+  return (data ?? []) as RecruiterJobRow[];
 }
 
 export async function fetchPublicJobById(
@@ -136,7 +105,7 @@ export async function fetchRecruiterJobById(
   const { data, error } = await supabase
     .from(JOB_TABLE)
     .select(
-      "id,title,department,jobType,location,locationType,status,description,salary,applicantCount,createdAt",
+      "id,title,department,jobType,location,locationType,status,description,salary,jobApplicationCount,createdAt",
     )
     .eq("id", jobId)
     .eq("recruiterId", recruiter.id)
@@ -146,13 +115,7 @@ export async function fetchRecruiterJobById(
     throw new Error(error?.message ?? "Failed to load job.");
   }
 
-  const job = data as RecruiterJobRow;
-  const applicantCountMap = await getApplicantCountMap(supabase, [job.id]);
-
-  return {
-    ...job,
-    applicantCount: applicantCountMap[job.id] ?? 0,
-  };
+  return data as RecruiterJobRow;
 }
 
 export async function createJob(

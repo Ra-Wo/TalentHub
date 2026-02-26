@@ -198,7 +198,7 @@ export default function RecruiterJobApplicationsPage() {
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">Applications</h2>
             {job ? (
-              <Badge variant="outline">{job.applicantCount} Total</Badge>
+              <Badge variant="outline">{job.jobApplicationCount} Total</Badge>
             ) : null}
           </div>
         </CardHeader>

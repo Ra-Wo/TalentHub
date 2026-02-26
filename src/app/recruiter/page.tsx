@@ -49,7 +49,7 @@ function mapApiJobToTable(job: RecruiterJobRow): Job {
     type: `${primaryLocation} • ${job.jobType}`,
     department: job.department,
     status: job.status,
-    applicants: job.applicantCount,
+    applicants: job.jobApplicationCount,
     extraApplicants: null,
     date: formatDate(job.createdAt),
   };
@@ -301,7 +301,7 @@ export default function RecruiterPage() {
                   <Badge variant="outline">{selectedJob.status}</Badge>
                   <Badge variant="outline">{selectedJob.jobType}</Badge>
                   <Badge variant="outline">
-                    {selectedJob.applicantCount} Applications
+                    {selectedJob.jobApplicationCount} Applications
                   </Badge>
                 </div>
               </div>
