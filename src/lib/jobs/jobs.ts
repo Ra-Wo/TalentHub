@@ -60,7 +60,31 @@ export async function fetchRecruiterJobs(
 
   if (error) throw new Error(error.message);
 
-  return (data ?? []) as RecruiterJobRow[];
+  const jobs = (data ?? []) as RecruiterJobRow[];
+  if (jobs.length === 0) {
+    return jobs;
+  }
+
+  const jobIds = jobs.map((job) => job.id);
+  const { data: applicationRows, error: applicationError } = await supabase
+    .from("JobApplication")
+    .select("jobId")
+    .in("jobId", jobIds);
+
+  if (applicationError) {
+    throw new Error(applicationError.message);
+  }
+
+  const countsByJobId = (applicationRows ?? []).reduce((accumulator, row) => {
+    const jobId = row.jobId as string;
+    accumulator.set(jobId, (accumulator.get(jobId) ?? 0) + 1);
+    return accumulator;
+  }, new Map<string, number>());
+
+  return jobs.map((job) => ({
+    ...job,
+    jobApplicationCount: countsByJobId.get(job.id) ?? 0,
+  }));
 }
 
 export async function fetchPublicJobById(
@@ -115,7 +139,19 @@ export async function fetchRecruiterJobById(
     throw new Error(error?.message ?? "Failed to load job.");
   }
 
-  return data as RecruiterJobRow;
+  const { count, error: countError } = await supabase
+    .from("JobApplication")
+    .select("id", { count: "exact", head: true })
+    .eq("jobId", jobId);
+
+  if (countError) {
+    throw new Error(countError.message);
+  }
+
+  return {
+    ...(data as RecruiterJobRow),
+    jobApplicationCount: count ?? 0,
+  };
 }
 
 export async function createJob(

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -58,6 +59,11 @@ function getStatusBadge(status: RecruiterApplicationRow["status"]) {
 
 function maskCandidateId(id: string) {
   return `${id.slice(0, 6)}...${id.slice(-4)}`;
+}
+
+function getNameFallback(name: string | null, email: string | null) {
+  const source = name ?? email ?? "A";
+  return source.slice(0, 1).toUpperCase();
 }
 
 function getResumeAccessCandidates(resume: string) {
@@ -197,9 +203,7 @@ export default function RecruiterJobApplicationsPage() {
         <CardHeader className="border-b border-border/70 px-6 py-4">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">Applications</h2>
-            {job ? (
-              <Badge variant="outline">{job.jobApplicationCount} Total</Badge>
-            ) : null}
+            <Badge variant="outline">{applications.length} Total</Badge>
           </div>
         </CardHeader>
         <CardContent className="p-6">
@@ -218,52 +222,91 @@ export default function RecruiterJobApplicationsPage() {
               {applications.map((application) => (
                 <div
                   key={application.id}
-                  className="rounded-xl border border-border/70 p-4"
+                  className="rounded-xl border border-border/70 bg-card p-5"
                 >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">
-                        Candidate: {maskCandidateId(application.candidateId)}
-                      </p>
-                      {application.coverLetter ? (
-                        <p className="text-sm text-foreground/85 mt-2 whitespace-pre-wrap">
-                          {application.coverLetter}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar>
+                        <AvatarImage
+                          src={application.candidate?.profileImage ?? undefined}
+                        />
+                        <AvatarFallback>
+                          {getNameFallback(
+                            application.candidate?.name ?? null,
+                            application.candidate?.email ?? null,
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {application.candidate?.name || "Name not available"}
                         </p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground mt-2">
-                          No cover letter provided.
+                        <p className="text-xs text-muted-foreground truncate">
+                          {application.candidate?.email ||
+                            "Email not available"}
                         </p>
-                      )}
+                        <p className="text-xs text-muted-foreground">
+                          Candidate ID:{" "}
+                          {maskCandidateId(application.candidateId)}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 md:items-end">
+                    <div className="flex flex-col items-end gap-2">
                       {getStatusBadge(application.status)}
                       <p className="text-xs text-muted-foreground">
                         Applied on {formatDate(application.appliedAt)}
                       </p>
-                      {application.resume ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleOpenResume(
-                              application.id,
-                              application.resume as string,
-                            )
-                          }
-                          disabled={openingResumeFor === application.id}
-                        >
-                          {openingResumeFor === application.id
-                            ? "Opening..."
-                            : "View Resume"}
-                        </Button>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">
-                          Resume not provided
-                        </p>
-                      )}
                     </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {application.coverLetter ? (
+                      <div className="rounded-md bg-muted/40 px-3 py-2">
+                        <p className="text-[11px] text-muted-foreground mb-1">
+                          Cover Letter
+                        </p>
+                        <p className="text-sm text-foreground/85 line-clamp-4 whitespace-pre-wrap">
+                          {application.coverLetter}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No cover letter provided.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+                    <Button asChild type="button" variant="outline" size="sm">
+                      <Link
+                        href={`/recruiter/applications/${application.id}?jobId=${jobId}`}
+                      >
+                        Open details
+                      </Link>
+                    </Button>
+                    {application.resume ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleOpenResume(
+                            application.id,
+                            application.resume as string,
+                          )
+                        }
+                        disabled={openingResumeFor === application.id}
+                      >
+                        {openingResumeFor === application.id
+                          ? "Opening..."
+                          : "View Resume"}
+                      </Button>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Resume not provided
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

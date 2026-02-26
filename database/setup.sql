@@ -235,6 +235,19 @@ FOR ALL
 TO public
 USING ("id" = auth.uid()::text);
 
+CREATE POLICY "Allow recruiters to read candidate profiles for own job applications" ON "Profile"
+FOR SELECT
+TO public
+USING (
+    EXISTS (
+        SELECT 1
+        FROM "JobApplication"
+        INNER JOIN "Job" ON "Job"."id" = "JobApplication"."jobId"
+        WHERE "JobApplication"."candidateId" = "Profile"."id"
+          AND "Job"."recruiterId" = auth.uid()::text
+    )
+);
+
 CREATE POLICY "Allow authenticated users to read departments" ON "Department"
 FOR SELECT
 TO authenticated

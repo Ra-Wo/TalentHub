@@ -40,6 +40,12 @@ export type RecruiterApplicationRow = {
   resume: string | null;
   coverLetter: string | null;
   candidateId: string;
+  candidate: {
+    id: string;
+    name: string | null;
+    email: string;
+    profileImage: string | null;
+  } | null;
   job: {
     id: string;
     title: string;
@@ -129,6 +135,12 @@ export async function fetchRecruiterApplications(
       resume,
       coverLetter,
       candidateId,
+      candidate:Profile!JobApplication_candidateId_fkey(
+        id,
+        name,
+        email,
+        profileImage
+      ),
       job:Job(
         id,
         title,
@@ -151,6 +163,10 @@ export async function fetchRecruiterApplications(
     resume: string | null;
     coverLetter: string | null;
     candidateId: string;
+    candidate:
+      | RecruiterApplicationRow["candidate"]
+      | RecruiterApplicationRow["candidate"][]
+      | null;
     job:
       | RecruiterApplicationRow["job"]
       | RecruiterApplicationRow["job"][]
@@ -160,6 +176,9 @@ export async function fetchRecruiterApplications(
   return rows
     .map((row) => {
       const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+      const normalizedCandidate = Array.isArray(row.candidate)
+        ? row.candidate[0]
+        : row.candidate;
       if (!normalizedJob) {
         return null;
       }
@@ -171,6 +190,7 @@ export async function fetchRecruiterApplications(
         resume: row.resume,
         coverLetter: row.coverLetter,
         candidateId: row.candidateId,
+        candidate: normalizedCandidate,
         job: normalizedJob,
       } satisfies RecruiterApplicationRow;
     })
@@ -193,6 +213,12 @@ export async function fetchRecruiterApplicationsByJobId(
       resume,
       coverLetter,
       candidateId,
+      candidate:Profile!JobApplication_candidateId_fkey(
+        id,
+        name,
+        email,
+        profileImage
+      ),
       job:Job(
         id,
         title,
@@ -216,6 +242,10 @@ export async function fetchRecruiterApplicationsByJobId(
     resume: string | null;
     coverLetter: string | null;
     candidateId: string;
+    candidate:
+      | RecruiterApplicationRow["candidate"]
+      | RecruiterApplicationRow["candidate"][]
+      | null;
     job:
       | RecruiterApplicationRow["job"]
       | RecruiterApplicationRow["job"][]
@@ -225,6 +255,9 @@ export async function fetchRecruiterApplicationsByJobId(
   return rows
     .map((row) => {
       const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+      const normalizedCandidate = Array.isArray(row.candidate)
+        ? row.candidate[0]
+        : row.candidate;
       if (!normalizedJob) {
         return null;
       }
@@ -236,10 +269,91 @@ export async function fetchRecruiterApplicationsByJobId(
         resume: row.resume,
         coverLetter: row.coverLetter,
         candidateId: row.candidateId,
+        candidate: normalizedCandidate,
         job: normalizedJob,
       } satisfies RecruiterApplicationRow;
     })
     .filter((row): row is RecruiterApplicationRow => row !== null);
+}
+
+export async function fetchRecruiterApplicationById(
+  supabase: SupabaseClient,
+  applicationId: string,
+): Promise<RecruiterApplicationRow> {
+  await ensureRecruiter(supabase);
+
+  const { data, error } = await supabase
+    .from("JobApplication")
+    .select(
+      `
+      id,
+      status,
+      appliedAt,
+      resume,
+      coverLetter,
+      candidateId,
+      candidate:Profile!JobApplication_candidateId_fkey(
+        id,
+        name,
+        email,
+        profileImage
+      ),
+      job:Job(
+        id,
+        title,
+        department,
+        jobType,
+        status
+      )
+    `,
+    )
+    .eq("id", applicationId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Application not found.");
+  }
+
+  const row = data as {
+    id: string;
+    status: RecruiterApplicationRow["status"];
+    appliedAt: string;
+    resume: string | null;
+    coverLetter: string | null;
+    candidateId: string;
+    candidate:
+      | RecruiterApplicationRow["candidate"]
+      | RecruiterApplicationRow["candidate"][]
+      | null;
+    job:
+      | RecruiterApplicationRow["job"]
+      | RecruiterApplicationRow["job"][]
+      | null;
+  };
+
+  const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
+  const normalizedCandidate = Array.isArray(row.candidate)
+    ? row.candidate[0]
+    : row.candidate;
+
+  if (!normalizedJob) {
+    throw new Error("Application job details are missing.");
+  }
+
+  return {
+    id: row.id,
+    status: row.status,
+    appliedAt: row.appliedAt,
+    resume: row.resume,
+    coverLetter: row.coverLetter,
+    candidateId: row.candidateId,
+    candidate: normalizedCandidate,
+    job: normalizedJob,
+  };
 }
 
 export async function applyToJob(
