@@ -225,18 +225,24 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-foreground text-2xl font-bold">$99/mo</p>
-                  <p className="text-muted-foreground text-sm">Unlimited jobs and full pipeline view</p>
+                  <p className="text-muted-foreground text-sm">
+                    Unlimited jobs and full pipeline view
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="border-border/70">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">Enterprise</h3>
-                  <p className="text-muted-foreground text-sm">For high-volume recruiting operations</p>
+                  <p className="text-muted-foreground text-sm">
+                    For high-volume recruiting operations
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-foreground text-2xl font-bold">Custom</p>
-                  <p className="text-muted-foreground text-sm">Advanced controls and priority support</p>
+                  <p className="text-muted-foreground text-sm">
+                    Advanced controls and priority support
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -278,7 +284,7 @@ export default function Home() {
             <Card className="border-border/70">
               <CardContent className="flex h-full flex-col justify-between gap-6 p-6">
                 <div className="space-y-2">
-                  <p className="text-primary text-sm font-semibold uppercase tracking-wide">
+                  <p className="text-primary text-sm font-semibold tracking-wide uppercase">
                     Ready to start?
                   </p>
                   <h3 className="text-foreground text-2xl font-bold">
