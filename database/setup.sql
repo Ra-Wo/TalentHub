@@ -203,7 +203,6 @@ ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Department" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Job" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "JobApplication" ENABLE ROW LEVEL SECURITY;
-
 -- Create RLS Policies (Supabase)
 CREATE POLICY "Allow recruiters to manage their own jobs" ON "Job"
 FOR ALL
@@ -252,6 +251,7 @@ CREATE POLICY "Allow authenticated users to read departments" ON "Department"
 FOR SELECT
 TO authenticated
 USING (true);
+
 
 -- Create Supabase Storage bucket for resumes
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

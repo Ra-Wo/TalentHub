@@ -1,4 +1,4 @@
-# Copilot Instructions for TalentAI
+# Copilot Instructions for TalentHub
 
 ## Project structure policy
 

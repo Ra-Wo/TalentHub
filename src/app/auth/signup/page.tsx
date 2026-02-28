@@ -34,7 +34,7 @@ export default function SignUpPage() {
       <div className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-10">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center">
-            <h1 className="text-foreground text-2xl font-semibold">Join TalentAI</h1>
+            <h1 className="text-foreground text-2xl font-semibold">Join TalentHub</h1>
             <p className="text-muted-foreground mt-2 text-sm">
               Create a candidate or recruiter account
             </p>

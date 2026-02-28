@@ -27,7 +27,7 @@ export function HomeHeader() {
             <circle cx="32" cy="16" r="4" fill="currentColor" opacity="0.9" />
           </svg>
         </div>
-        <span className="text-foreground text-sm font-semibold">TalentAI</span>
+        <span className="text-foreground text-sm font-semibold">TalentHub</span>
       </div>
 
       <nav className="text-muted-foreground hidden items-center gap-6 text-sm font-medium md:flex">

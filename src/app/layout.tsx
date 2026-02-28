@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TalentAI",
+  title: "TalentHub",
   description: "A hiring OS that keeps teams aligned and decisive.",
 };
 

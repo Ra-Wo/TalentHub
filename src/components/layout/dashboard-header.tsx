@@ -107,7 +107,7 @@ export function DashboardHeader() {
               <circle cx="32" cy="16" r="4" fill="currentColor" opacity="0.9" />
             </svg>
           </div>
-          <span className="text-foreground font-semibold">TalentAI</span>
+          <span className="text-foreground font-semibold">TalentHub</span>
         </Link>
 
         <div className="flex items-center gap-3">
