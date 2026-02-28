@@ -37,11 +37,7 @@ export function SignUpForm() {
     <Card className="border-border">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <AccountTypeSelector
-            value={accountType}
-            onChange={setAccountType}
-            disabled={loading}
-          />
+          <AccountTypeSelector value={accountType} onChange={setAccountType} disabled={loading} />
 
           <div className="space-y-2.5">
             <Label>Email Address</Label>
@@ -82,17 +78,13 @@ export function SignUpForm() {
                 className="border-0 bg-transparent shadow-none hover:bg-transparent"
                 disabled={loading}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </InputGroup>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -113,9 +105,7 @@ export function SignUpForm() {
               <div className="w-full border-t" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-card px-3 text-xs text-muted-foreground">
-                Or continue with
-              </span>
+              <span className="bg-card text-muted-foreground px-3 text-xs">Or continue with</span>
             </div>
           </div>
 

@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/context/supabase-provider";
-import { getAccountTypeRoute } from "@/hooks/use-auth";
-import { getUserAccountType, upsertUserProfile } from "@/lib/user-profile";
+import { getAccountTypeRoute } from "@/lib/helpers/routes";
+import { getUserAccountType, upsertUserProfile } from "@/lib/profile";
 
 type AccountType = "candidate" | "recruiter";
 
@@ -15,16 +15,11 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const syncAccountType = async () => {
       const params = new URLSearchParams(window.location.search);
-      const requestedAccountType = params.get(
-        "account_type",
-      ) as AccountType | null;
+      const requestedAccountType = params.get("account_type") as AccountType | null;
 
       let resolvedAccountType: AccountType = "candidate";
 
-      if (
-        requestedAccountType === "candidate" ||
-        requestedAccountType === "recruiter"
-      ) {
+      if (requestedAccountType === "candidate" || requestedAccountType === "recruiter") {
         const {
           data: { user },
         } = await supabase.auth.getUser();
@@ -63,7 +58,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full border-4 border-border border-t-primary h-12 w-12 mx-auto mb-4" />
+        <div className="border-border border-t-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4" />
         <p className="text-muted-foreground">Signing you in...</p>
       </div>
     </div>

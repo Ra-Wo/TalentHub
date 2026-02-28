@@ -13,18 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useSupabase } from "@/context/supabase-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { applyToJob, uploadCandidateResumePdf } from "@/lib/jobs/applications";
-import { fetchPublicJobById, type PublicJobRow } from "@/lib/jobs/jobs";
+import { applyToJob, uploadCandidateResumePdf } from "@/lib/job-applications";
+import { fetchPublicJobById, type PublicJobRow } from "@/lib/jobs";
+import { formatDate } from "@/lib/helpers/format";
 import { Briefcase, CalendarDays, MapPin, Wallet } from "lucide-react";
-
-function formatDate(input: string) {
-  const date = new Date(input);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
-}
 
 function formatLocation(job: PublicJobRow) {
   return job.location?.trim() || job.locationType;
@@ -59,9 +51,7 @@ export default function ApplyToJobPage() {
         }
       } catch (err) {
         if (!isCancelled) {
-          setError(
-            err instanceof Error ? err.message : "Unable to load this job.",
-          );
+          setError(err instanceof Error ? err.message : "Unable to load this job.");
           setJob(null);
         }
       } finally {
@@ -99,11 +89,7 @@ export default function ApplyToJobPage() {
         throw new Error("Please upload your resume as a PDF.");
       }
 
-      const resumePath = await uploadCandidateResumePdf(
-        supabase,
-        jobId,
-        resumeFile,
-      );
+      const resumePath = await uploadCandidateResumePdf(supabase, jobId, resumeFile);
 
       await applyToJob(supabase, {
         jobId,
@@ -114,9 +100,7 @@ export default function ApplyToJobPage() {
       setResumeFile(null);
       setCoverLetter("");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to submit application.",
-      );
+      setError(err instanceof Error ? err.message : "Failed to submit application.");
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +115,7 @@ export default function ApplyToJobPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <DashboardHeader />
 
       <div className="mx-auto w-full max-w-5xl px-6 py-8 sm:px-10 lg:py-10">
@@ -149,12 +133,9 @@ export default function ApplyToJobPage() {
                     <Badge variant="secondary">{job.jobType}</Badge>
                   </div>
                   <div>
-                    <CardTitle className="text-2xl tracking-tight">
-                      {job.title}
-                    </CardTitle>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Review the details and submit your application from the
-                      panel.
+                    <CardTitle className="text-2xl tracking-tight">{job.title}</CardTitle>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      Review the details and submit your application from the panel.
                     </p>
                   </div>
                 </>
@@ -166,33 +147,29 @@ export default function ApplyToJobPage() {
             <CardContent className="space-y-6">
               {job ? (
                 <>
-                  <div className="grid grid-cols-1 gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
-                    <div className="flex items-center gap-2 text-sm text-foreground">
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <div className="border-border grid grid-cols-1 gap-3 rounded-lg border p-4 sm:grid-cols-2">
+                    <div className="text-foreground flex items-center gap-2 text-sm">
+                      <Briefcase className="text-muted-foreground h-4 w-4" />
                       <span>{job.jobType}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-foreground">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <div className="text-foreground flex items-center gap-2 text-sm">
+                      <MapPin className="text-muted-foreground h-4 w-4" />
                       <span>{formatLocation(job)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-foreground">
-                      <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    <div className="text-foreground flex items-center gap-2 text-sm">
+                      <CalendarDays className="text-muted-foreground h-4 w-4" />
                       <span>Posted on {formatDate(job.createdAt)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-foreground">
-                      <Wallet className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        {job.salary || "Compensation shared during interview"}
-                      </span>
+                    <div className="text-foreground flex items-center gap-2 text-sm">
+                      <Wallet className="text-muted-foreground h-4 w-4" />
+                      <span>{job.salary || "Compensation shared during interview"}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-foreground">
-                      Job Description
-                    </h3>
-                    <div className="rounded-lg border border-border bg-muted/30 p-4">
-                      <p className="whitespace-pre-wrap text-sm leading-6 text-foreground/90">
+                    <h3 className="text-foreground text-sm font-semibold">Job Description</h3>
+                    <div className="border-border bg-muted/30 rounded-lg border p-4">
+                      <p className="text-foreground/90 text-sm leading-6 whitespace-pre-wrap">
                         {job.description?.trim() ||
                           "Detailed job description will be shared by the recruiter."}
                       </p>
@@ -200,10 +177,9 @@ export default function ApplyToJobPage() {
                   </div>
                 </>
               ) : (
-                <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground">
-                    This job is not available right now. It may be closed or
-                    removed.
+                <div className="border-border rounded-lg border p-4">
+                  <p className="text-muted-foreground text-sm">
+                    This job is not available right now. It may be closed or removed.
                   </p>
                 </div>
               )}
@@ -216,8 +192,8 @@ export default function ApplyToJobPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {!authLoading && !isAuthenticated ? (
-                <div className="space-y-3 rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground">
+                <div className="border-border space-y-3 rounded-lg border p-4">
+                  <p className="text-muted-foreground text-sm">
                     Sign in as a candidate to apply for this role.
                   </p>
                   <Button asChild className="w-full">
@@ -241,13 +217,9 @@ export default function ApplyToJobPage() {
                         setResumeFile(selected);
                       }}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Only PDF files are accepted.
-                    </p>
+                    <p className="text-muted-foreground text-xs">Only PDF files are accepted.</p>
                     {resumeFile ? (
-                      <p className="text-xs text-foreground">
-                        Selected: {resumeFile.name}
-                      </p>
+                      <p className="text-foreground text-xs">Selected: {resumeFile.name}</p>
                     ) : null}
                   </div>
 
@@ -258,7 +230,7 @@ export default function ApplyToJobPage() {
                       value={coverLetter}
                       onChange={(event) => setCoverLetter(event.target.value)}
                       placeholder="Share why this role fits your experience"
-                      className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="border-input bg-background ring-offset-background focus-visible:ring-ring min-h-32 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -283,9 +255,8 @@ export default function ApplyToJobPage() {
                   </Button>
 
                   {isAuthenticated && accountType !== "candidate" ? (
-                    <p className="text-xs text-muted-foreground">
-                      You are signed in as recruiter. Switch to a candidate
-                      account to apply.
+                    <p className="text-muted-foreground text-xs">
+                      You are signed in as recruiter. Switch to a candidate account to apply.
                     </p>
                   ) : null}
                 </form>

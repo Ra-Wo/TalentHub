@@ -3,13 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabase-provider";
 import type { User } from "@supabase/supabase-js";
-import { getUserAccountType, upsertUserProfile } from "@/lib/user-profile";
-
-export type AccountType = "candidate" | "recruiter";
-
-export function getAccountTypeRoute(accountType?: AccountType | null): string {
-  return accountType === "recruiter" ? "/recruiter" : "/candidate";
-}
+import { getUserAccountType, upsertUserProfile } from "@/lib/profile";
+import type { AccountType } from "@/lib/profile";
 
 export function useAuth() {
   const supabase = useSupabase();
@@ -26,16 +21,11 @@ export function useAuth() {
       }
 
       try {
-        const resolvedAccountType = await getUserAccountType(
-          supabase,
-          nextUser,
-        );
+        const resolvedAccountType = await getUserAccountType(supabase, nextUser);
         setAccountType(resolvedAccountType);
       } catch {
         const metadataAccountType = nextUser.user_metadata?.account_type;
-        setAccountType(
-          metadataAccountType === "recruiter" ? "recruiter" : "candidate",
-        );
+        setAccountType(metadataAccountType === "recruiter" ? "recruiter" : "candidate");
       }
     }
 
@@ -69,11 +59,7 @@ export function useAuth() {
     };
   }, [supabase]);
 
-  const signUp = async (
-    email: string,
-    password: string,
-    accountType: AccountType,
-  ) => {
+  const signUp = async (email: string, password: string, accountType: AccountType) => {
     setLoading(true);
     setError(null);
     try {
@@ -99,11 +85,7 @@ export function useAuth() {
     }
   };
 
-  const signIn = async (
-    email: string,
-    password: string,
-    accountType?: AccountType,
-  ) => {
+  const signIn = async (email: string, password: string, accountType?: AccountType) => {
     setLoading(true);
     setError(null);
     try {
@@ -135,11 +117,7 @@ export function useAuth() {
           if (updateError) throw updateError;
         }
 
-        if (
-          metadataAccountType &&
-          metadataAccountType !== accountType &&
-          data.user
-        ) {
+        if (metadataAccountType && metadataAccountType !== accountType && data.user) {
           await supabase.auth.signOut();
           throw new Error(
             `This account is registered as ${metadataAccountType}. Please select ${metadataAccountType} to continue.`,
@@ -206,8 +184,7 @@ export function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const redirectTo = accountType
         ? `${origin}/auth/callback?account_type=${accountType}`
         : `${origin}/auth/callback`;

@@ -1,53 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  DEPARTMENT_TABLE,
-  JOB_TABLE,
-  ensureRecruiter,
-  normalizeDepartmentName,
-  normalizeNullable,
-} from "./shared";
+import { DEPARTMENT_TABLE, JOB_TABLE } from "@/lib/constants";
+import { ensureRecruiter } from "@/lib/auth/ensure-user";
+import { normalizeDepartmentName, normalizeNullable } from "@/lib/helpers/sanitize";
+import type { JobMutationInput, PublicJobRow, RecruiterJobRow } from "./jobs.types";
 
-export type RecruiterJobRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  department: string;
-  jobType: string;
-  location: string | null;
-  locationType: "Remote" | "On-site" | "Hybrid";
-  salary: string | null;
-  status: "Draft" | "Active" | "Closed";
-  jobApplicationCount: number;
-  createdAt: string;
-};
-
-export type PublicJobRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  department: string;
-  jobType: string;
-  location: string | null;
-  locationType: "Remote" | "On-site" | "Hybrid";
-  salary: string | null;
-  status: "Draft" | "Active" | "Closed";
-  createdAt: string;
-};
-
-export type JobMutationInput = {
-  title: string;
-  description?: string;
-  department: string;
-  jobType: string;
-  location?: string;
-  locationType: "Remote" | "On-site" | "Hybrid";
-  salary?: string;
-  status: "Draft" | "Active" | "Closed";
-};
-
-export async function fetchRecruiterJobs(
-  supabase: SupabaseClient,
-): Promise<RecruiterJobRow[]> {
+export async function fetchRecruiterJobs(supabase: SupabaseClient): Promise<RecruiterJobRow[]> {
   const recruiter = await ensureRecruiter(supabase);
 
   const { data, error } = await supabase
@@ -93,9 +50,7 @@ export async function fetchPublicJobById(
 ): Promise<PublicJobRow> {
   const { data, error } = await supabase
     .from(JOB_TABLE)
-    .select(
-      "id,title,description,department,jobType,location,locationType,salary,status,createdAt",
-    )
+    .select("id,title,description,department,jobType,location,locationType,salary,status,createdAt")
     .eq("id", jobId)
     .eq("status", "Active")
     .single();
@@ -107,9 +62,7 @@ export async function fetchPublicJobById(
   return data as PublicJobRow;
 }
 
-export async function fetchDepartments(
-  supabase: SupabaseClient,
-): Promise<string[]> {
+export async function fetchDepartments(supabase: SupabaseClient): Promise<string[]> {
   const { data, error } = await supabase
     .from(DEPARTMENT_TABLE)
     .select("name")

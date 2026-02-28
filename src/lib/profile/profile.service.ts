@@ -1,20 +1,10 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-
-type AccountType = "candidate" | "recruiter";
-
-const PROFILE_TABLE = "Profile";
+import { USER_TABLE } from "@/lib/constants";
+import { normalizeNullable } from "@/lib/helpers/sanitize";
+import type { AccountType, UpdateUserProfileInput, UserProfile } from "./profile.types";
 
 function isAccountType(value: unknown): value is AccountType {
   return value === "candidate" || value === "recruiter";
-}
-
-function normalizeNullable(value: unknown): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : null;
 }
 
 export async function upsertUserProfile(
@@ -24,14 +14,12 @@ export async function upsertUserProfile(
 ): Promise<void> {
   const now = new Date().toISOString();
 
-  const { error } = await supabase.from(PROFILE_TABLE).upsert(
+  const { error } = await supabase.from(USER_TABLE).upsert(
     {
       id: user.id,
       userid: user.id,
       email: user.email,
-      name: normalizeNullable(
-        user.user_metadata?.full_name ?? user.user_metadata?.name,
-      ),
+      name: normalizeNullable(user.user_metadata?.full_name ?? user.user_metadata?.name),
       profileImage: normalizeNullable(user.user_metadata?.avatar_url),
       accountType,
       updatedAt: now,
@@ -49,7 +37,7 @@ export async function getUserAccountType(
   user: User,
 ): Promise<AccountType> {
   const { data, error } = await supabase
-    .from(PROFILE_TABLE)
+    .from(USER_TABLE)
     .select("accountType")
     .eq("id", user.id)
     .maybeSingle();
@@ -71,22 +59,12 @@ export async function getUserAccountType(
   return "candidate";
 }
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  name: string | null;
-  profileImage: string | null;
-  accountType: AccountType;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export async function getUserProfile(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<UserProfile> {
   const { data, error } = await supabase
-    .from(PROFILE_TABLE)
+    .from(USER_TABLE)
     .select("*")
     .eq("id", userId)
     .maybeSingle();
@@ -100,11 +78,6 @@ export async function getUserProfile(
   }
 
   return data as UserProfile;
-}
-
-export interface UpdateUserProfileInput {
-  name?: string;
-  profileImage?: string;
 }
 
 export async function updateUserProfile(
@@ -127,7 +100,7 @@ export async function updateUserProfile(
   }
 
   const { data, error } = await supabase
-    .from(PROFILE_TABLE)
+    .from(USER_TABLE)
     .update(updateData)
     .eq("id", userId)
     .select("*")

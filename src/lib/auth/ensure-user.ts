@@ -1,10 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-export const USER_TABLE = "Profile";
-export const JOB_TABLE = "Job";
-export const DEPARTMENT_TABLE = "Department";
-export const RESUME_BUCKET =
-  process.env.NEXT_PUBLIC_SUPABASE_RESUME_BUCKET || "resumes";
+import { USER_TABLE } from "@/lib/constants";
 
 export type RecruiterRow = {
   id: string;
@@ -15,19 +10,6 @@ export type CandidateRow = {
   accountType: "candidate" | "recruiter";
 };
 
-export function normalizeNullable(value?: string) {
-  const normalized = value?.trim();
-  return normalized ? normalized : null;
-}
-
-export function normalizeDepartmentName(value: string) {
-  return value.trim().replace(/\s+/g, " ");
-}
-
-export function sanitizeFileName(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
-}
-
 async function getUser(supabase: SupabaseClient) {
   const {
     data: { user },
@@ -37,17 +19,13 @@ async function getUser(supabase: SupabaseClient) {
   if (error) throw new Error(error.message);
 
   if (!user?.id) {
-    throw new Error(
-      "Unable to identify recruiter account. Please sign in again.",
-    );
+    throw new Error("Unable to identify recruiter account. Please sign in again.");
   }
 
   return user;
 }
 
-export async function ensureRecruiter(
-  supabase: SupabaseClient,
-): Promise<RecruiterRow> {
+export async function ensureRecruiter(supabase: SupabaseClient): Promise<RecruiterRow> {
   const user = await getUser(supabase);
   const now = new Date().toISOString();
 
@@ -73,9 +51,7 @@ export async function ensureRecruiter(
   return data as RecruiterRow;
 }
 
-export async function ensureCandidate(
-  supabase: SupabaseClient,
-): Promise<CandidateRow> {
+export async function ensureCandidate(supabase: SupabaseClient): Promise<CandidateRow> {
   const user = await getUser(supabase);
 
   const { data, error } = await supabase

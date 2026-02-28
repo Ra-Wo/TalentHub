@@ -3,15 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  ArrowUpDown,
-  Pencil,
-  Copy,
-  Link2,
-  Archive,
-  Trash2,
-  RefreshCw,
-} from "lucide-react";
+import { ArrowUpDown, Pencil, Copy, Link2, Archive, Trash2, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -50,7 +42,7 @@ function CopyApplyLinkButton({ jobId }: { jobId: string }) {
       title={copied ? "Copied" : "Copy Apply Link"}
       onClick={onCopy}
     >
-      <Copy className="w-4 h-4" />
+      <Copy className="h-4 w-4" />
     </Button>
   );
 }
@@ -61,7 +53,7 @@ const getStatusBadge = (status: string) => {
       return (
         <Badge
           variant="outline"
-          className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 gap-1"
+          className="gap-1 border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
         >
           <span className="size-1.5 rounded-full bg-emerald-500"></span>
           Active
@@ -69,10 +61,7 @@ const getStatusBadge = (status: string) => {
       );
     case "Closed":
       return (
-        <Badge
-          variant="outline"
-          className="bg-red-500/10 text-red-500 border-red-500/20 gap-1"
-        >
+        <Badge variant="outline" className="gap-1 border-red-500/20 bg-red-500/10 text-red-500">
           <span className="size-1.5 rounded-full bg-red-500"></span>
           Closed
         </Badge>
@@ -80,7 +69,7 @@ const getStatusBadge = (status: string) => {
     case "Draft":
       return (
         <Badge variant="outline" className="gap-1">
-          <span className="size-1.5 rounded-full bg-muted-foreground"></span>
+          <span className="bg-muted-foreground size-1.5 rounded-full"></span>
           Draft
         </Badge>
       );
@@ -96,7 +85,7 @@ export const columns: ColumnDef<Job>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground h-auto p-0 font-semibold hover:bg-transparent"
       >
         Job Title
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -107,12 +96,8 @@ export const columns: ColumnDef<Job>[] = [
       return (
         <div className="flex items-center">
           <div className="space-y-0.5">
-            <div className="text-sm font-semibold text-foreground leading-none">
-              {job.title}
-            </div>
-            <div className="text-xs text-muted-foreground leading-none">
-              {job.type}
-            </div>
+            <div className="text-foreground text-sm leading-none font-semibold">{job.title}</div>
+            <div className="text-muted-foreground text-xs leading-none">{job.type}</div>
           </div>
         </div>
       );
@@ -122,9 +107,7 @@ export const columns: ColumnDef<Job>[] = [
     accessorKey: "department",
     header: "Department",
     cell: ({ row }) => (
-      <div className="text-sm font-medium text-foreground/85">
-        {row.getValue("department")}
-      </div>
+      <div className="text-foreground/85 text-sm font-medium">{row.getValue("department")}</div>
     ),
   },
   {
@@ -138,7 +121,7 @@ export const columns: ColumnDef<Job>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground h-auto p-0 font-semibold hover:bg-transparent"
       >
         Applicants
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -148,20 +131,18 @@ export const columns: ColumnDef<Job>[] = [
       const job = row.original;
       return job.applicants > 0 ? (
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-foreground">
-            {job.applicants}
-          </span>
+          <span className="text-foreground text-sm font-semibold">{job.applicants}</span>
           {job.extraApplicants && (
             <div className="flex -space-x-1">
               {job.extraApplicants === "Hot" ? (
-                <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-500 text-[10px] font-bold">
+                <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-bold text-blue-500">
                   Hot
                 </span>
               ) : (
                 <>
-                  <div className="size-5 rounded-full bg-muted ring-2 ring-card"></div>
-                  <div className="size-5 rounded-full bg-muted-foreground/50 ring-2 ring-card"></div>
-                  <div className="size-5 rounded-full bg-muted-foreground ring-2 ring-card flex items-center justify-center text-[8px] text-background font-bold">
+                  <div className="bg-muted ring-card size-5 rounded-full ring-2"></div>
+                  <div className="bg-muted-foreground/50 ring-card size-5 rounded-full ring-2"></div>
+                  <div className="bg-muted-foreground ring-card text-background flex size-5 items-center justify-center rounded-full text-[8px] font-bold ring-2">
                     {job.extraApplicants}
                   </div>
                 </>
@@ -170,9 +151,7 @@ export const columns: ColumnDef<Job>[] = [
           )}
         </div>
       ) : (
-        <span className="text-sm text-muted-foreground italic">
-          No applicants
-        </span>
+        <span className="text-muted-foreground text-sm italic">No applicants</span>
       );
     },
   },
@@ -180,9 +159,7 @@ export const columns: ColumnDef<Job>[] = [
     accessorKey: "date",
     header: "Created Date",
     cell: ({ row }) => (
-      <div className="text-sm font-medium text-muted-foreground">
-        {row.getValue("date")}
-      </div>
+      <div className="text-muted-foreground text-sm font-medium">{row.getValue("date")}</div>
     ),
   },
   {
@@ -196,36 +173,19 @@ export const columns: ColumnDef<Job>[] = [
           onClick={(event) => event.stopPropagation()}
         >
           {job.status === "Closed" ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title="Reopen"
-            >
-              <RefreshCw className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Reopen">
+              <RefreshCw className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title="Edit"
-              asChild
-            >
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit" asChild>
               <Link href={`/recruiter/jobs/${job.id}/edit`}>
-                <Pencil className="w-4 h-4" />
+                <Pencil className="h-4 w-4" />
               </Link>
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            title="Open Apply Link"
-            asChild
-          >
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Open Apply Link" asChild>
             <Link href={`/jobs/${job.id}/apply`} target="_blank">
-              <Link2 className="w-4 h-4" />
+              <Link2 className="h-4 w-4" />
             </Link>
           </Button>
           <CopyApplyLinkButton jobId={job.id} />
@@ -236,7 +196,7 @@ export const columns: ColumnDef<Job>[] = [
               className="h-8 w-8 p-0 hover:text-red-500"
               title="Delete Draft"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           ) : job.status === "Closed" ? (
             <Button
@@ -245,7 +205,7 @@ export const columns: ColumnDef<Job>[] = [
               className="h-8 w-8 p-0 hover:text-red-500"
               title="Delete"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           ) : (
             <Button
@@ -254,7 +214,7 @@ export const columns: ColumnDef<Job>[] = [
               className="h-8 w-8 p-0 hover:text-red-500"
               title="Close Job"
             >
-              <Archive className="w-4 h-4" />
+              <Archive className="h-4 w-4" />
             </Button>
           )}
         </div>

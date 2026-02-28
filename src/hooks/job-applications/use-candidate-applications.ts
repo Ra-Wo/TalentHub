@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabase-provider";
-import {
-  fetchCandidateApplications,
-  type CandidateApplicationRow,
-} from "@/lib/jobs/applications";
+import { fetchCandidateApplications, type CandidateApplicationRow } from "@/lib/job-applications";
 
 type UseCandidateApplicationsResult = {
   applications: CandidateApplicationRow[];
@@ -16,9 +13,7 @@ type UseCandidateApplicationsResult = {
 
 export function useCandidateApplications(): UseCandidateApplicationsResult {
   const supabase = useSupabase();
-  const [applications, setApplications] = useState<CandidateApplicationRow[]>(
-    [],
-  );
+  const [applications, setApplications] = useState<CandidateApplicationRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -37,9 +32,7 @@ export function useCandidateApplications(): UseCandidateApplicationsResult {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load applications.",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load applications.");
           setApplications([]);
         }
       } finally {

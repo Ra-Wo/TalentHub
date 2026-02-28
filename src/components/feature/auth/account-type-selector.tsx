@@ -40,18 +40,18 @@ export function AccountTypeSelector({
           onClick={() => onChange(id)}
           disabled={disabled}
           className={cn(
-            "h-auto flex-col gap-2 p-3 text-sm border-border border rounded-lg cursor-pointer flex items-center transition-colors",
+            "border-border flex h-auto cursor-pointer flex-col items-center gap-2 rounded-lg border p-3 text-sm transition-colors",
             value === id
               ? "border-primary/10 bg-accent/50 text-accent-foreground"
-              : "hover:bg-accent/50 disabled:opacity-50 disabled:cursor-not-allowed",
+              : "hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50",
           )}
         >
-          <div className="rounded-full bg-muted p-1.5 w-fit">
+          <div className="bg-muted w-fit rounded-full p-1.5">
             <Icon className="h-4 w-4" />
           </div>
           <div className="text-center">
             <div className="font-medium">{label}</div>
-            <div className="text-xs text-muted-foreground">{description}</div>
+            <div className="text-muted-foreground text-xs">{description}</div>
           </div>
         </button>
       ))}

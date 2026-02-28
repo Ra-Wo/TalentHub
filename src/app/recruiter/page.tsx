@@ -14,11 +14,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/layout/recruiter-data-table/data-table";
-import {
-  columns,
-  type Job,
-} from "@/components/layout/recruiter-data-table/columns";
-import { type RecruiterJobRow } from "@/lib/jobs/jobs";
+import { columns, type Job } from "@/components/layout/recruiter-data-table/columns";
+import { type RecruiterJobRow } from "@/lib/jobs";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
@@ -31,15 +28,7 @@ import {
   CalendarDays,
   Building2,
 } from "lucide-react";
-
-function formatDate(input: string) {
-  const date = new Date(input);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
-}
+import { formatDate } from "@/lib/helpers/format";
 
 function mapApiJobToTable(job: RecruiterJobRow): Job {
   const primaryLocation = job.location?.trim() || job.locationType;
@@ -56,32 +45,17 @@ function mapApiJobToTable(job: RecruiterJobRow): Job {
 }
 
 export default function RecruiterPage() {
-  const {
-    jobs: rawJobs,
-    departments,
-    isLoading: isJobsLoading,
-  } = useRecruiterJobs();
+  const { jobs: rawJobs, departments, isLoading: isJobsLoading } = useRecruiterJobs();
   const jobs = useMemo(() => rawJobs.map(mapApiJobToTable), [rawJobs]);
-  const jobsById = useMemo(
-    () => new Map(rawJobs.map((job) => [job.id, job])),
-    [rawJobs],
-  );
+  const jobsById = useMemo(() => new Map(rawJobs.map((job) => [job.id, job])), [rawJobs]);
 
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
-  const selectedJob = selectedJobId
-    ? (jobsById.get(selectedJobId) ?? null)
-    : null;
+  const selectedJob = selectedJobId ? (jobsById.get(selectedJobId) ?? null) : null;
 
   const totalJobs = jobs.length;
-  const activeJobs = useMemo(
-    () => jobs.filter((job) => job.status === "Active").length,
-    [jobs],
-  );
-  const closedJobs = useMemo(
-    () => jobs.filter((job) => job.status === "Closed").length,
-    [jobs],
-  );
+  const activeJobs = useMemo(() => jobs.filter((job) => job.status === "Active").length, [jobs]);
+  const closedJobs = useMemo(() => jobs.filter((job) => job.status === "Closed").length, [jobs]);
 
   const activeJobsPercentage = useMemo(() => {
     if (totalJobs === 0) return 0;
@@ -96,17 +70,15 @@ export default function RecruiterPage() {
   const mostAppliedJob = useMemo(() => {
     return jobs.reduce<Job | null>((currentBest, currentJob) => {
       if (!currentBest) return currentJob;
-      return currentJob.applicants > currentBest.applicants
-        ? currentJob
-        : currentBest;
+      return currentJob.applicants > currentBest.applicants ? currentJob : currentBest;
     }, null);
   }, [jobs]);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+    <div className="relative flex h-full flex-1 flex-col overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 z-10 pb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="z-10 shrink-0 pb-6">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <Breadcrumb className="mb-2">
               <BreadcrumbList>
@@ -119,13 +91,11 @@ export default function RecruiterPage() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <h2 className="text-2xl font-bold text-foreground tracking-tight">
-              Job Listings
-            </h2>
+            <h2 className="text-foreground text-2xl font-bold tracking-tight">Job Listings</h2>
           </div>
           <Button className="bg-primary" asChild>
             <Link href="/recruiter/jobs/new">
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               Add New Job
             </Link>
           </Button>
@@ -134,61 +104,47 @@ export default function RecruiterPage() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto scroll-smooth pb-10">
-        <div className="max-w-350 mx-auto space-y-6">
+        <div className="mx-auto max-w-350 space-y-6">
           {/* Insights Widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {/* Widget 1 */}
-            <div className="bg-card rounded-xl p-5 border border-border shadow-sm relative overflow-hidden group">
-              <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Briefcase className="w-16 h-16 text-foreground" />
+            <div className="bg-card border-border group relative overflow-hidden rounded-xl border p-5 shadow-sm">
+              <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
+                <Briefcase className="text-foreground h-16 w-16" />
               </div>
-              <div className="flex flex-col gap-1 relative z-10">
-                <p className="text-muted-foreground text-sm font-medium">
-                  Total Jobs
-                </p>
+              <div className="relative z-10 flex flex-col gap-1">
+                <p className="text-muted-foreground text-sm font-medium">Total Jobs</p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-3xl font-bold text-foreground">
-                    {totalJobs}
-                  </h3>
-                  <span className="text-emerald-500 text-xs font-medium flex items-center bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                    <ArrowUpDown className="w-3 h-3 mr-0.5" /> +12%
+                  <h3 className="text-foreground text-3xl font-bold">{totalJobs}</h3>
+                  <span className="flex items-center rounded bg-emerald-500/10 px-1.5 py-0.5 text-xs font-medium text-emerald-500">
+                    <ArrowUpDown className="mr-0.5 h-3 w-3" /> +12%
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs mt-2">
+                <p className="text-muted-foreground mt-2 text-xs">
                   All positions created by your recruiter account
                 </p>
               </div>
             </div>
 
             {/* Widget 2 */}
-            <div className="bg-card rounded-xl p-5 border border-border shadow-sm relative overflow-hidden group">
-              <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <PieChart className="w-16 h-16 text-foreground" />
+            <div className="bg-card border-border group relative overflow-hidden rounded-xl border p-5 shadow-sm">
+              <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
+                <PieChart className="text-foreground h-16 w-16" />
               </div>
-              <div className="flex flex-col gap-1 relative z-10">
-                <p className="text-muted-foreground text-sm font-medium">
-                  Active vs Closed
-                </p>
-                <div className="flex items-center gap-3 mt-1">
-                  <div className="flex-1 flex flex-col gap-1">
-                    <span className="text-2xl font-bold text-foreground">
-                      {activeJobs}
-                    </span>
-                    <span className="text-xs text-emerald-500 font-medium">
-                      Active
-                    </span>
+              <div className="relative z-10 flex flex-col gap-1">
+                <p className="text-muted-foreground text-sm font-medium">Active vs Closed</p>
+                <div className="mt-1 flex items-center gap-3">
+                  <div className="flex flex-1 flex-col gap-1">
+                    <span className="text-foreground text-2xl font-bold">{activeJobs}</span>
+                    <span className="text-xs font-medium text-emerald-500">Active</span>
                   </div>
-                  <div className="w-px h-8 bg-border"></div>
-                  <div className="flex-1 flex flex-col gap-1">
-                    <span className="text-2xl font-bold text-muted-foreground">
-                      {closedJobs}
-                    </span>
-                    <span className="text-xs text-red-500 font-medium">
-                      Closed
-                    </span>
+                  <div className="bg-border h-8 w-px"></div>
+                  <div className="flex flex-1 flex-col gap-1">
+                    <span className="text-muted-foreground text-2xl font-bold">{closedJobs}</span>
+                    <span className="text-xs font-medium text-red-500">Closed</span>
                   </div>
                 </div>
-                <div className="w-full h-1.5 bg-muted rounded-full mt-3 overflow-hidden flex">
+                <div className="bg-muted mt-3 flex h-1.5 w-full overflow-hidden rounded-full">
                   <div
                     className="h-full bg-emerald-500"
                     style={{ width: `${activeJobsPercentage}%` }}
@@ -202,38 +158,36 @@ export default function RecruiterPage() {
             </div>
 
             {/* Widget 3 */}
-            <div className="bg-card rounded-xl p-5 border border-border shadow-sm relative overflow-hidden group">
-              <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Flame className="w-16 h-16 text-foreground" />
+            <div className="bg-card border-border group relative overflow-hidden rounded-xl border p-5 shadow-sm">
+              <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
+                <Flame className="text-foreground h-16 w-16" />
               </div>
-              <div className="flex flex-col gap-1 relative z-10">
-                <p className="text-muted-foreground text-sm font-medium">
-                  Most Applied Position
-                </p>
-                <h3 className="text-xl font-bold text-foreground mt-1 truncate">
+              <div className="relative z-10 flex flex-col gap-1">
+                <p className="text-muted-foreground text-sm font-medium">Most Applied Position</p>
+                <h3 className="text-foreground mt-1 truncate text-xl font-bold">
                   {mostAppliedJob?.title ?? "No data yet"}
                 </h3>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="flex -space-x-2">
                     <Image
                       width={24}
                       height={24}
                       alt="Applicant 1"
-                      className="inline-block size-6 rounded-full ring-2 ring-card"
+                      className="ring-card inline-block size-6 rounded-full ring-2"
                       src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
                     />
                     <Image
                       width={24}
                       height={24}
                       alt="Applicant 2"
-                      className="inline-block size-6 rounded-full ring-2 ring-card"
+                      className="ring-card inline-block size-6 rounded-full ring-2"
                       src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
                     />
                     <Image
                       width={24}
                       height={24}
                       alt="Applicant 3"
-                      className="inline-block size-6 rounded-full ring-2 ring-card"
+                      className="ring-card inline-block size-6 rounded-full ring-2"
                       src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
                     />
                   </div>
@@ -258,28 +212,24 @@ export default function RecruiterPage() {
 
       {selectedJob ? (
         <>
-          <div
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={() => setSelectedJobId(null)}
-          />
-          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-xl border-l border-border bg-background shadow-2xl">
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setSelectedJobId(null)} />
+          <aside className="border-border bg-background fixed top-0 right-0 z-50 h-full w-full max-w-xl border-l shadow-2xl">
             <div className="flex h-full flex-col">
-              <div className="border-b border-border px-6 py-4">
+              <div className="border-border border-b px-6 py-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs text-muted-foreground">Job Details</p>
-                    <h3 className="mt-1 text-xl font-semibold text-foreground">
+                    <p className="text-muted-foreground text-xs">Job Details</p>
+                    <h3 className="text-foreground mt-1 text-xl font-semibold">
                       {selectedJob.title}
                     </h3>
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-2 text-xs">
                       <span className="inline-flex items-center gap-1">
                         <Building2 className="h-3.5 w-3.5" />
                         {selectedJob.department}
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" />
-                        {selectedJob.location?.trim() ||
-                          selectedJob.locationType}
+                        {selectedJob.location?.trim() || selectedJob.locationType}
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <CalendarDays className="h-3.5 w-3.5" />
@@ -300,37 +250,27 @@ export default function RecruiterPage() {
                 <div className="mt-3 flex items-center gap-2">
                   <Badge variant="outline">{selectedJob.status}</Badge>
                   <Badge variant="outline">{selectedJob.jobType}</Badge>
-                  <Badge variant="outline">
-                    {selectedJob.jobApplicationCount} Applications
-                  </Badge>
+                  <Badge variant="outline">{selectedJob.jobApplicationCount} Applications</Badge>
                 </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">
-                    Description
-                  </p>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {selectedJob.description?.trim() ||
-                      "No description provided."}
+                  <p className="text-foreground text-sm font-medium">Description</p>
+                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+                    {selectedJob.description?.trim() || "No description provided."}
                   </p>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between gap-3 rounded-lg border border-border/70 p-4">
+                <div className="border-border/70 mt-6 flex items-center justify-between gap-3 rounded-lg border p-4">
                   <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Applications
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Open the dedicated page to review all applications for
-                      this job.
+                    <p className="text-foreground text-sm font-medium">Applications</p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Open the dedicated page to review all applications for this job.
                     </p>
                   </div>
                   <Button asChild>
-                    <Link
-                      href={`/recruiter/jobs/${selectedJob.id}/applications`}
-                    >
+                    <Link href={`/recruiter/jobs/${selectedJob.id}/applications`}>
                       View Applications
                     </Link>
                   </Button>

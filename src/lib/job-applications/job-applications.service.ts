@@ -1,59 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { fetchPublicJobById, fetchRecruiterJobById } from "./jobs";
-import {
-  RESUME_BUCKET,
-  ensureCandidate,
-  ensureRecruiter,
-  normalizeNullable,
-  sanitizeFileName,
-} from "./shared";
-
-export type JobApplicationInput = {
-  jobId: string;
-  resume?: string;
-  coverLetter?: string;
-};
-
-export type CandidateApplicationRow = {
-  id: string;
-  status: "pending" | "reviewing" | "rejected" | "accepted";
-  appliedAt: string;
-  resume: string | null;
-  coverLetter: string | null;
-  job: {
-    id: string;
-    title: string;
-    department: string;
-    jobType: string;
-    location: string | null;
-    locationType: "Remote" | "On-site" | "Hybrid";
-    salary: string | null;
-    status: "Draft" | "Active" | "Closed";
-    createdAt: string;
-  };
-};
-
-export type RecruiterApplicationRow = {
-  id: string;
-  status: "pending" | "reviewing" | "rejected" | "accepted";
-  appliedAt: string;
-  resume: string | null;
-  coverLetter: string | null;
-  candidateId: string;
-  candidate: {
-    id: string;
-    name: string | null;
-    email: string;
-    profileImage: string | null;
-  } | null;
-  job: {
-    id: string;
-    title: string;
-    department: string;
-    jobType: string;
-    status: "Draft" | "Active" | "Closed";
-  };
-};
+import { RESUME_BUCKET } from "@/lib/constants";
+import { ensureCandidate, ensureRecruiter } from "@/lib/auth/ensure-user";
+import { normalizeNullable, sanitizeFileName } from "@/lib/helpers/sanitize";
+import { fetchPublicJobById, fetchRecruiterJobById } from "@/lib/jobs/jobs.service";
+import type {
+  CandidateApplicationRow,
+  JobApplicationInput,
+  RecruiterApplicationRow,
+} from "./job-applications.types";
 
 export async function fetchCandidateApplications(
   supabase: SupabaseClient,
@@ -95,10 +49,7 @@ export async function fetchCandidateApplications(
     appliedAt: string;
     resume: string | null;
     coverLetter: string | null;
-    job:
-      | CandidateApplicationRow["job"]
-      | CandidateApplicationRow["job"][]
-      | null;
+    job: CandidateApplicationRow["job"] | CandidateApplicationRow["job"][] | null;
   }>;
 
   return rows
@@ -163,22 +114,14 @@ export async function fetchRecruiterApplications(
     resume: string | null;
     coverLetter: string | null;
     candidateId: string;
-    candidate:
-      | RecruiterApplicationRow["candidate"]
-      | RecruiterApplicationRow["candidate"][]
-      | null;
-    job:
-      | RecruiterApplicationRow["job"]
-      | RecruiterApplicationRow["job"][]
-      | null;
+    candidate: RecruiterApplicationRow["candidate"] | RecruiterApplicationRow["candidate"][] | null;
+    job: RecruiterApplicationRow["job"] | RecruiterApplicationRow["job"][] | null;
   }>;
 
   return rows
     .map((row) => {
       const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
-      const normalizedCandidate = Array.isArray(row.candidate)
-        ? row.candidate[0]
-        : row.candidate;
+      const normalizedCandidate = Array.isArray(row.candidate) ? row.candidate[0] : row.candidate;
       if (!normalizedJob) {
         return null;
       }
@@ -242,22 +185,14 @@ export async function fetchRecruiterApplicationsByJobId(
     resume: string | null;
     coverLetter: string | null;
     candidateId: string;
-    candidate:
-      | RecruiterApplicationRow["candidate"]
-      | RecruiterApplicationRow["candidate"][]
-      | null;
-    job:
-      | RecruiterApplicationRow["job"]
-      | RecruiterApplicationRow["job"][]
-      | null;
+    candidate: RecruiterApplicationRow["candidate"] | RecruiterApplicationRow["candidate"][] | null;
+    job: RecruiterApplicationRow["job"] | RecruiterApplicationRow["job"][] | null;
   }>;
 
   return rows
     .map((row) => {
       const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
-      const normalizedCandidate = Array.isArray(row.candidate)
-        ? row.candidate[0]
-        : row.candidate;
+      const normalizedCandidate = Array.isArray(row.candidate) ? row.candidate[0] : row.candidate;
       if (!normalizedJob) {
         return null;
       }
@@ -325,20 +260,12 @@ export async function fetchRecruiterApplicationById(
     resume: string | null;
     coverLetter: string | null;
     candidateId: string;
-    candidate:
-      | RecruiterApplicationRow["candidate"]
-      | RecruiterApplicationRow["candidate"][]
-      | null;
-    job:
-      | RecruiterApplicationRow["job"]
-      | RecruiterApplicationRow["job"][]
-      | null;
+    candidate: RecruiterApplicationRow["candidate"] | RecruiterApplicationRow["candidate"][] | null;
+    job: RecruiterApplicationRow["job"] | RecruiterApplicationRow["job"][] | null;
   };
 
   const normalizedJob = Array.isArray(row.job) ? row.job[0] : row.job;
-  const normalizedCandidate = Array.isArray(row.candidate)
-    ? row.candidate[0]
-    : row.candidate;
+  const normalizedCandidate = Array.isArray(row.candidate) ? row.candidate[0] : row.candidate;
 
   if (!normalizedJob) {
     throw new Error("Application job details are missing.");
@@ -401,13 +328,11 @@ export async function uploadCandidateResumePdf(
   const safeName = sanitizeFileName(file.name);
   const path = `${candidate.id}/${jobId}/${Date.now()}-${safeName}`;
 
-  const { error } = await supabase.storage
-    .from(RESUME_BUCKET)
-    .upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: "application/pdf",
-    });
+  const { error } = await supabase.storage.from(RESUME_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: "application/pdf",
+  });
 
   if (error) {
     throw new Error(error.message);

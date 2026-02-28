@@ -7,7 +7,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
 import { useRecruiterJob } from "@/hooks/jobs";
-import { updateJob } from "@/lib/jobs/jobs";
+import { updateJob } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,9 +76,7 @@ export default function EditJobPage() {
   }, [loadError]);
 
   const canSubmit = useMemo(() => {
-    return Boolean(
-      form.title.trim() && form.department.trim() && form.jobType.trim(),
-    );
+    return Boolean(form.title.trim() && form.department.trim() && form.jobType.trim());
   }, [form]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -106,9 +104,7 @@ export default function EditJobPage() {
       router.refresh();
     } catch (err) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to update job. Please try again.";
+        err instanceof Error ? err.message : "Failed to update job. Please try again.";
       setError(message);
     } finally {
       setSubmitting(false);
@@ -128,9 +124,7 @@ export default function EditJobPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Edit Job</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update the job listing details.
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">Update the job listing details.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/recruiter">Back</Link>
@@ -139,7 +133,7 @@ export default function EditJobPage() {
 
       <form
         onSubmit={onSubmit}
-        className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm"
+        className="border-border bg-card space-y-6 rounded-xl border p-6 shadow-sm"
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
@@ -270,7 +264,7 @@ export default function EditJobPage() {
                 }))
               }
               placeholder="Describe role, responsibilities, and requirements..."
-              className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="border-input bg-background ring-offset-background focus-visible:ring-ring min-h-32 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             />
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useSupabase } from "@/context/supabase-provider";
 import {
   fetchRecruiterApplicationById,
   type RecruiterApplicationRow,
-} from "@/lib/jobs/applications";
+} from "@/lib/job-applications";
 
 type UseRecruiterApplicationResult = {
   application: RecruiterApplicationRow | null;
@@ -14,13 +14,10 @@ type UseRecruiterApplicationResult = {
   reload: () => void;
 };
 
-export function useRecruiterApplication(
-  applicationId: string,
-): UseRecruiterApplicationResult {
+export function useRecruiterApplication(applicationId: string): UseRecruiterApplicationResult {
   const supabase = useSupabase();
 
-  const [application, setApplication] =
-    useState<RecruiterApplicationRow | null>(null);
+  const [application, setApplication] = useState<RecruiterApplicationRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -39,21 +36,14 @@ export function useRecruiterApplication(
       setError(null);
 
       try {
-        const row = await fetchRecruiterApplicationById(
-          supabase,
-          applicationId,
-        );
+        const row = await fetchRecruiterApplicationById(supabase, applicationId);
 
         if (!cancelled) {
           setApplication(row);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load application details.",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load application details.");
           setApplication(null);
         }
       } finally {

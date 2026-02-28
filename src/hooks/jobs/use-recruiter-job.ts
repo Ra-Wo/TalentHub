@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabase-provider";
-import { fetchRecruiterJobById, type RecruiterJobRow } from "@/lib/jobs/jobs";
+import { fetchRecruiterJobById, type RecruiterJobRow } from "@/lib/jobs";
 
 type UseRecruiterJobResult = {
   job: RecruiterJobRow | null;

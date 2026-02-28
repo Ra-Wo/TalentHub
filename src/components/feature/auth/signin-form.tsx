@@ -51,12 +51,7 @@ export function SignInForm() {
           <div className="space-y-2">
             <div className="ml-1 flex items-center justify-between">
               <Label>Password</Label>
-              <Button
-                type="button"
-                variant="link"
-                size="xs"
-                className="h-auto p-0"
-              >
+              <Button type="button" variant="link" size="xs" className="h-auto p-0">
                 Forgot?
               </Button>
             </div>
@@ -80,17 +75,13 @@ export function SignInForm() {
                 className="border-0 bg-transparent shadow-none hover:bg-transparent"
                 disabled={loading}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </InputGroup>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -108,9 +99,7 @@ export function SignInForm() {
 
           <div className="relative flex items-center py-1">
             <div className="grow border-t"></div>
-            <span className="mx-3 text-xs text-muted-foreground">
-              or continue with
-            </span>
+            <span className="text-muted-foreground mx-3 text-xs">or continue with</span>
             <div className="grow border-t"></div>
           </div>
 

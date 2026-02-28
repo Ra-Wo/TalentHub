@@ -6,7 +6,7 @@ import { FormEvent, useMemo, useState } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import { createJob } from "@/lib/jobs/jobs";
+import { createJob } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,9 +50,7 @@ export default function NewRecruiterJobPage() {
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => {
-    return Boolean(
-      form.title.trim() && form.department.trim() && form.jobType.trim(),
-    );
+    return Boolean(form.title.trim() && form.department.trim() && form.jobType.trim());
   }, [form]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -80,9 +78,7 @@ export default function NewRecruiterJobPage() {
       router.refresh();
     } catch (err) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to create job. Please try again.";
+        err instanceof Error ? err.message : "Failed to create job. Please try again.";
       setError(message);
     } finally {
       setSubmitting(false);
@@ -94,7 +90,7 @@ export default function NewRecruiterJobPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Add New Job</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             Create a new job listing for your hiring pipeline.
           </p>
         </div>
@@ -105,7 +101,7 @@ export default function NewRecruiterJobPage() {
 
       <form
         onSubmit={onSubmit}
-        className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm"
+        className="border-border bg-card space-y-6 rounded-xl border p-6 shadow-sm"
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
@@ -235,7 +231,7 @@ export default function NewRecruiterJobPage() {
                 }))
               }
               placeholder="Describe role, responsibilities, and requirements..."
-              className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="border-input bg-background ring-offset-background focus-visible:ring-ring min-h-32 w-full rounded-md border px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             />
           </div>
         </div>

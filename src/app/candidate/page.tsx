@@ -3,72 +3,19 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import { useCandidateApplications } from "@/hooks/job-applications/use-candidate-applications";
-import { getUserProfile } from "@/lib/user-profile";
-import { type CandidateApplicationRow } from "@/lib/jobs/applications";
+import { useCandidateApplications } from "@/hooks/job-applications";
+import { getUserProfile } from "@/lib/profile";
+import { StatusBadge } from "@/components/feature/job-applications/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Briefcase,
-  Building2,
-  CalendarDays,
-  CheckCircle2,
-  Clock3,
-  MapPin,
-} from "lucide-react";
-
-function formatDate(input: string) {
-  const date = new Date(input);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
-}
-
-function getStatusBadge(status: CandidateApplicationRow["status"]) {
-  switch (status) {
-    case "accepted":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-        >
-          Accepted
-        </Badge>
-      );
-    case "rejected":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-red-500/10 text-red-500 border-red-500/20"
-        >
-          Rejected
-        </Badge>
-      );
-    case "reviewing":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-blue-500/10 text-blue-500 border-blue-500/20"
-        >
-          Reviewing
-        </Badge>
-      );
-    default:
-      return <Badge variant="outline">Pending</Badge>;
-  }
-}
+import { formatDate } from "@/lib/helpers/format";
+import { Briefcase, Building2, CalendarDays, CheckCircle2, Clock3, MapPin } from "lucide-react";
 
 export default function CandidatePage() {
   const { user } = useAuth();
   const supabase = useSupabase();
-  const {
-    applications,
-    isLoading: loading,
-    error,
-  } = useCandidateApplications();
+  const { applications, isLoading: loading, error } = useCandidateApplications();
 
   const [displayName, setDisplayName] = useState("there");
 
@@ -130,13 +77,13 @@ export default function CandidatePage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm">
+      <div className="border-border/70 bg-card/70 rounded-2xl border p-6 shadow-sm">
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">Candidate Dashboard</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <p className="text-muted-foreground text-sm">Candidate Dashboard</p>
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight">
             Welcome back, {displayName}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Track your applications and stay updated on your hiring progress.
           </p>
         </div>
@@ -146,52 +93,40 @@ export default function CandidatePage() {
         <Card className="border-border/70 bg-card/70 shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Total Applications
-              </p>
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
+              <p className="text-muted-foreground text-sm">Total Applications</p>
+              <Briefcase className="text-muted-foreground h-4 w-4" />
             </div>
-            <p className="mt-3 text-3xl font-semibold text-foreground">
-              {totalApplied}
-            </p>
+            <p className="text-foreground mt-3 text-3xl font-semibold">{totalApplied}</p>
           </CardContent>
         </Card>
 
         <Card className="border-border/70 bg-card/70 shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">In Review</p>
-              <Clock3 className="h-4 w-4 text-muted-foreground" />
+              <p className="text-muted-foreground text-sm">In Review</p>
+              <Clock3 className="text-muted-foreground h-4 w-4" />
             </div>
-            <p className="mt-3 text-3xl font-semibold text-foreground">
-              {reviewingCount}
-            </p>
+            <p className="text-foreground mt-3 text-3xl font-semibold">{reviewingCount}</p>
           </CardContent>
         </Card>
 
         <Card className="border-border/70 bg-card/70 shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Accepted</p>
+              <p className="text-muted-foreground text-sm">Accepted</p>
               <CheckCircle2 className="h-4 w-4 text-emerald-500" />
             </div>
-            <p className="mt-3 text-3xl font-semibold text-foreground">
-              {acceptedCount}
-            </p>
+            <p className="text-foreground mt-3 text-3xl font-semibold">{acceptedCount}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="rounded-2xl border-border/60 bg-background/80 shadow-xl backdrop-blur">
-        <CardHeader className="border-b border-border/70 px-6 py-4">
+      <Card className="border-border/60 bg-background/80 rounded-2xl shadow-xl backdrop-blur">
+        <CardHeader className="border-border/70 border-b px-6 py-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Applied Jobs
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                Latest applications first
-              </p>
+              <h2 className="text-foreground text-lg font-semibold">Applied Jobs</h2>
+              <p className="text-muted-foreground mt-1 text-xs">Latest applications first</p>
             </div>
             <Badge variant="outline">{totalApplied} Total</Badge>
           </div>
@@ -206,8 +141,8 @@ export default function CandidatePage() {
               <p className="text-sm text-red-500">{error}</p>
             </div>
           ) : applications.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-8 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="border-border rounded-lg border border-dashed p-8 text-center">
+              <p className="text-muted-foreground text-sm">
                 You haven&apos;t applied to any jobs yet.
               </p>
             </div>
@@ -220,15 +155,13 @@ export default function CandidatePage() {
                 return (
                   <div
                     key={application.id}
-                    className="rounded-xl border border-border/70 bg-card/50 p-4 transition-colors hover:bg-card"
+                    className="border-border/70 bg-card/50 hover:bg-card rounded-xl border p-4 transition-colors"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-3">
                         <div>
-                          <p className="text-base font-semibold text-foreground">
-                            {job.title}
-                          </p>
-                          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                          <p className="text-foreground text-base font-semibold">{job.title}</p>
+                          <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                             <span className="inline-flex items-center gap-1.5">
                               <Building2 className="h-3.5 w-3.5" />
                               {job.department}
@@ -245,15 +178,13 @@ export default function CandidatePage() {
                         </div>
 
                         {job.salary ? (
-                          <p className="text-sm text-foreground/90">
-                            {job.salary}
-                          </p>
+                          <p className="text-foreground/90 text-sm">{job.salary}</p>
                         ) : null}
                       </div>
 
                       <div className="flex flex-col items-start gap-2 lg:items-end">
-                        {getStatusBadge(application.status)}
-                        <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <StatusBadge status={application.status} />
+                        <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
                           <CalendarDays className="h-3.5 w-3.5" />
                           Applied on {formatDate(application.appliedAt)}
                         </p>

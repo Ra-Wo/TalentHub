@@ -47,9 +47,7 @@ export function Meteors({
   }, [count]);
 
   return (
-    <div
-      className={cn("fixed inset-0 overflow-hidden bg-neutral-950", className)}
-    >
+    <div className={cn("fixed inset-0 overflow-hidden bg-neutral-950", className)}>
       {/* Keyframe animation - uses vmax for viewport scaling */}
       <style>{`
         @keyframes meteor-fall {
@@ -115,9 +113,7 @@ export function Meteors({
       />
 
       {/* Content layer */}
-      {children && (
-        <div className="relative z-10 h-full w-full">{children}</div>
-      )}
+      {children && <div className="relative z-10 h-full w-full">{children}</div>}
     </div>
   );
 }

@@ -49,10 +49,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void;
 }
 
-export function DataTable<
-  TData extends { status: string; department: string },
-  TValue,
->({
+export function DataTable<TData extends { status: string; department: string }, TValue>({
   columns,
   data,
   departments = [],
@@ -60,9 +57,7 @@ export function DataTable<
   onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -90,9 +85,7 @@ export function DataTable<
 
   React.useEffect(() => {
     if (deptFilter === "all") return;
-    const isValidDepartment = departmentOptions.some(
-      (option) => option.value === deptFilter,
-    );
+    const isValidDepartment = departmentOptions.some((option) => option.value === deptFilter);
     if (!isValidDepartment) setDeptFilter("all");
   }, [departmentOptions, deptFilter]);
 
@@ -104,11 +97,9 @@ export function DataTable<
   const filteredData = React.useMemo(() => {
     return data.filter((item) => {
       const statusMatch =
-        statusFilter === "all" ||
-        item.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "all" || item.status.toLowerCase() === statusFilter.toLowerCase();
       const deptMatch =
-        deptFilter === "all" ||
-        item.department.toLowerCase() === deptFilter.toLowerCase();
+        deptFilter === "all" || item.department.toLowerCase() === deptFilter.toLowerCase();
       return statusMatch && deptMatch;
     });
   }, [data, statusFilter, deptFilter]);
@@ -131,16 +122,16 @@ export function DataTable<
   });
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
+    <div className="bg-card border-border flex h-full flex-col overflow-hidden rounded-xl border shadow-sm">
       {/* Toolbar */}
-      <div className="p-4 border-b border-border bg-muted/20 flex flex-col lg:flex-row gap-3 lg:gap-4 justify-between lg:items-center">
+      <div className="border-border bg-muted/20 flex flex-col justify-between gap-3 border-b p-4 lg:flex-row lg:items-center lg:gap-4">
         {/* Search */}
         <div className="relative w-full lg:max-w-md">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="w-4 h-4 text-muted-foreground" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Search className="text-muted-foreground h-4 w-4" />
           </div>
           <Input
-            className="block h-10 w-full pl-10 pr-3 bg-background border-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-colors"
+            className="bg-background border-border focus:ring-primary focus:border-primary block h-10 w-full rounded-lg pr-3 pl-10 transition-colors focus:ring-1 sm:text-sm"
             placeholder="Search by job title, keyword, or ID..."
             type="text"
             onChange={(event) => {
@@ -150,7 +141,7 @@ export function DataTable<
         </div>
 
         {/* Filters */}
-        <div className="flex w-full lg:w-auto gap-3">
+        <div className="flex w-full gap-3 lg:w-auto">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="h-10 w-full lg:w-40">
               <SelectValue />
@@ -180,7 +171,7 @@ export function DataTable<
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto flex-1">
+      <div className="flex-1 overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -189,14 +180,11 @@ export function DataTable<
                   return (
                     <TableHead
                       key={header.id}
-                      className="h-11 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+                      className="text-muted-foreground h-11 text-[11px] font-semibold tracking-wide uppercase"
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -208,10 +196,7 @@ export function DataTable<
               Array.from({ length: 6 }).map((_, rowIndex) => (
                 <TableRow key={`loading-row-${rowIndex}`}>
                   {columns.map((_, colIndex) => (
-                    <TableCell
-                      key={`loading-cell-${rowIndex}-${colIndex}`}
-                      className="py-4"
-                    >
+                    <TableCell key={`loading-cell-${rowIndex}-${colIndex}`} className="py-4">
                       <Skeleton
                         className={`h-4 ${
                           colIndex === 0
@@ -230,33 +215,25 @@ export function DataTable<
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-accent/40 transition-colors group"
+                  className="hover:bg-accent/40 group transition-colors"
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-4 align-middle">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-44 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-44 text-center">
                   <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-2 px-4">
-                    <div className="rounded-full border border-border bg-muted/40 p-3">
-                      <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div className="border-border bg-muted/40 rounded-full border p-3">
+                      <Briefcase className="text-muted-foreground h-5 w-5" />
                     </div>
-                    <p className="text-sm font-medium text-foreground">
-                      No jobs found
-                    </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-foreground text-sm font-medium">No jobs found</p>
+                    <p className="text-muted-foreground text-xs">
                       Try changing filters or create a new job posting.
                     </p>
                   </div>
@@ -268,29 +245,24 @@ export function DataTable<
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="border-border bg-muted/10 flex flex-col items-center justify-between gap-3 border-t p-4 sm:flex-row">
         {/* Row count + rows-per-page */}
         <div className="flex items-center gap-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {filteredData.length === 0 ? (
               "No results"
             ) : (
               <>
                 Showing{" "}
-                <span className="font-medium text-foreground">
+                <span className="text-foreground font-medium">
                   {pagination.pageIndex * pagination.pageSize + 1}
                 </span>
                 {"–"}
-                <span className="font-medium text-foreground">
-                  {Math.min(
-                    (pagination.pageIndex + 1) * pagination.pageSize,
-                    filteredData.length,
-                  )}
+                <span className="text-foreground font-medium">
+                  {Math.min((pagination.pageIndex + 1) * pagination.pageSize, filteredData.length)}
                 </span>
                 {" of "}
-                <span className="font-medium text-foreground">
-                  {filteredData.length}
-                </span>
+                <span className="text-foreground font-medium">{filteredData.length}</span>
                 {" rows"}
               </>
             )}
@@ -346,11 +318,7 @@ export function DataTable<
             .filter((page) => {
               const current = pagination.pageIndex;
               const total = table.getPageCount();
-              return (
-                page === 0 ||
-                page === total - 1 ||
-                Math.abs(page - current) <= 1
-              );
+              return page === 0 || page === total - 1 || Math.abs(page - current) <= 1;
             })
             .reduce<(number | "…")[]>((acc, page, idx, arr) => {
               if (idx > 0 && (page as number) - (arr[idx - 1] as number) > 1) {
@@ -363,16 +331,14 @@ export function DataTable<
               item === "…" ? (
                 <span
                   key={`ellipsis-${idx}`}
-                  className="px-1 text-sm text-muted-foreground select-none"
+                  className="text-muted-foreground px-1 text-sm select-none"
                 >
                   …
                 </span>
               ) : (
                 <Button
                   key={item}
-                  variant={
-                    pagination.pageIndex === item ? "default" : "outline"
-                  }
+                  variant={pagination.pageIndex === item ? "default" : "outline"}
                   size="sm"
                   className="h-8 w-8 p-0 text-xs"
                   onClick={() => table.setPageIndex(item as number)}

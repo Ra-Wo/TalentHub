@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSupabase } from "@/context/supabase-provider";
-import {
-  fetchDepartments,
-  fetchRecruiterJobs,
-  type RecruiterJobRow,
-} from "@/lib/jobs/jobs";
+import { fetchDepartments, fetchRecruiterJobs, type RecruiterJobRow } from "@/lib/jobs";
 
 type UseRecruiterJobsResult = {
   jobs: RecruiterJobRow[];

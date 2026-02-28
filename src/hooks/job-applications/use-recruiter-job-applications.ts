@@ -5,8 +5,8 @@ import { useSupabase } from "@/context/supabase-provider";
 import {
   fetchRecruiterApplicationsByJobId,
   type RecruiterApplicationRow,
-} from "@/lib/jobs/applications";
-import { fetchRecruiterJobById, type RecruiterJobRow } from "@/lib/jobs/jobs";
+} from "@/lib/job-applications";
+import { fetchRecruiterJobById, type RecruiterJobRow } from "@/lib/jobs";
 
 type UseRecruiterJobApplicationsResult = {
   job: RecruiterJobRow | null;
@@ -16,15 +16,11 @@ type UseRecruiterJobApplicationsResult = {
   reload: () => void;
 };
 
-export function useRecruiterJobApplications(
-  jobId: string,
-): UseRecruiterJobApplicationsResult {
+export function useRecruiterJobApplications(jobId: string): UseRecruiterJobApplicationsResult {
   const supabase = useSupabase();
 
   const [job, setJob] = useState<RecruiterJobRow | null>(null);
-  const [applications, setApplications] = useState<RecruiterApplicationRow[]>(
-    [],
-  );
+  const [applications, setApplications] = useState<RecruiterApplicationRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -56,9 +52,7 @@ export function useRecruiterJobApplications(
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load applications for this job.",
+            err instanceof Error ? err.message : "Failed to load applications for this job.",
           );
           setJob(null);
           setApplications([]);
