@@ -5,7 +5,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupText } from "@/components/ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
@@ -34,15 +39,14 @@ export function SignInForm() {
           <div className="space-y-2">
             <Label className="ml-1">Email address</Label>
             <InputGroup>
-              <InputGroupText>
+              <InputGroupAddon>
                 <Mail className="h-4 w-4" />
-              </InputGroupText>
-              <Input
+              </InputGroupAddon>
+              <InputGroupInput
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border-0 shadow-none focus-visible:ring-0"
                 disabled={loading}
               />
             </InputGroup>
@@ -56,10 +60,10 @@ export function SignInForm() {
               </Button>
             </div>
             <InputGroup>
-              <InputGroupText>
+              <InputGroupAddon>
                 <Lock className="h-4 w-4" />
-              </InputGroupText>
-              <Input
+              </InputGroupAddon>
+              <InputGroupInput
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
@@ -67,16 +71,18 @@ export function SignInForm() {
                 className="border-0 shadow-none focus-visible:ring-0"
                 disabled={loading}
               />
-              <Button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                variant="ghost"
-                size="icon-xs"
-                className="border-0 bg-transparent shadow-none hover:bg-transparent"
-                disabled={loading}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
+              <InputGroupAddon align="inline-end">
+                <Button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  variant="ghost"
+                  size="icon-xs"
+                  className="border-0 bg-transparent shadow-none hover:bg-transparent"
+                  disabled={loading}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </InputGroupAddon>
             </InputGroup>
           </div>
 
