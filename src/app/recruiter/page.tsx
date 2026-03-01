@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRecruiterJobs } from "@/hooks/jobs";
+import { useSupabase } from "@/context/supabase-provider";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,8 +15,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/layout/recruiter-data-table/data-table";
-import { columns, type Job } from "@/components/layout/recruiter-data-table/columns";
-import { type RecruiterJobRow } from "@/lib/jobs";
+import { getColumns, type Job } from "@/components/layout/recruiter-data-table/columns";
+import { type RecruiterJobRow, updateRecruiterJobStatus } from "@/lib/jobs";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
@@ -45,7 +46,8 @@ function mapApiJobToTable(job: RecruiterJobRow): Job {
 }
 
 export default function RecruiterPage() {
-  const { jobs: rawJobs, departments, isLoading: isJobsLoading } = useRecruiterJobs();
+  const { jobs: rawJobs, departments, isLoading: isJobsLoading, reload } = useRecruiterJobs();
+  const supabase = useSupabase();
   const jobs = useMemo(() => rawJobs.map(mapApiJobToTable), [rawJobs]);
   const jobsById = useMemo(() => new Map(rawJobs.map((job) => [job.id, job])), [rawJobs]);
 
@@ -73,6 +75,39 @@ export default function RecruiterPage() {
       return currentJob.applicants > currentBest.applicants ? currentJob : currentBest;
     }, null);
   }, [jobs]);
+
+  const handleCloseJob = useCallback(
+    async (jobId: string) => {
+      try {
+        await updateRecruiterJobStatus(supabase, jobId, "Closed");
+        reload();
+      } catch {
+        window.alert("Unable to close this job right now. Please try again.");
+      }
+    },
+    [reload, supabase],
+  );
+
+  const handleReopenJob = useCallback(
+    async (jobId: string) => {
+      try {
+        await updateRecruiterJobStatus(supabase, jobId, "Active");
+        reload();
+      } catch {
+        window.alert("Unable to reopen this job right now. Please try again.");
+      }
+    },
+    [reload, supabase],
+  );
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onCloseJob: handleCloseJob,
+        onReopenJob: handleReopenJob,
+      }),
+    [handleCloseJob, handleReopenJob],
+  );
 
   return (
     <div className="relative flex h-full flex-1 flex-col overflow-hidden">
@@ -252,17 +287,8 @@ export default function RecruiterPage() {
                   <Badge variant="outline">{selectedJob.jobType}</Badge>
                   <Badge variant="outline">{selectedJob.jobApplicationCount} Applications</Badge>
                 </div>
-              </div>
 
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="space-y-2">
-                  <p className="text-foreground text-sm font-medium">Description</p>
-                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
-                    {selectedJob.description?.trim() || "No description provided."}
-                  </p>
-                </div>
-
-                <div className="border-border/70 mt-6 flex items-center justify-between gap-3 rounded-lg border p-4">
+                <div className="border-border/70 mt-4 flex items-center justify-between gap-3 rounded-lg border p-4">
                   <div>
                     <p className="text-foreground text-sm font-medium">Applications</p>
                     <p className="text-muted-foreground mt-1 text-xs">
@@ -274,6 +300,15 @@ export default function RecruiterPage() {
                       View Applications
                     </Link>
                   </Button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-2">
+                  <p className="text-foreground text-sm font-medium">Description</p>
+                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+                    {selectedJob.description?.trim() || "No description provided."}
+                  </p>
                 </div>
               </div>
             </div>

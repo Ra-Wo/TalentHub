@@ -6,4 +6,5 @@ export {
   fetchRecruiterJobById,
   createJob,
   updateJob,
+  updateRecruiterJobStatus,
 } from "./jobs.service";

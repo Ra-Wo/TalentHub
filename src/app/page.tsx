@@ -23,28 +23,28 @@ export default function Home() {
         <Meteors number={24} />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 pt-6 pb-20 sm:px-10">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 pt-5 pb-16 sm:px-8 sm:pt-6 lg:px-12 xl:px-14">
         <HomeHeader />
 
-        <main className="mt-14 space-y-16">
-          <section className="flex flex-col items-center text-center">
+        <main className="mt-16 space-y-20 sm:mt-20 sm:space-y-24">
+          <section className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
             <Badge
               variant="outline"
-              className="border-border/60 bg-background/80 text-muted-foreground rounded-full px-4 py-1 text-[0.65rem] font-semibold tracking-[0.22em] uppercase"
+              className="border-border/60 bg-background/80 text-muted-foreground rounded-full px-4 py-1.5 text-[0.65rem] font-semibold tracking-[0.22em] uppercase"
             >
               Built for Modern Hiring Teams
             </Badge>
 
-            <h1 className="text-foreground mt-6 max-w-4xl text-4xl leading-tight font-extrabold sm:text-5xl lg:text-6xl">
+            <h1 className="text-foreground mt-7 max-w-4xl text-4xl leading-tight font-extrabold sm:text-5xl lg:text-6xl">
               Hire faster with a workflow your team can trust.
             </h1>
 
-            <p className="text-muted-foreground mt-5 max-w-2xl text-base leading-7 sm:text-lg">
+            <p className="text-muted-foreground mt-6 max-w-3xl text-base leading-7 sm:text-lg">
               TalentHub gives recruiters and candidates one clear place to manage applications,
               track progress, and make faster hiring decisions.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <Button
                 asChild
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6"
@@ -64,73 +64,92 @@ export default function Home() {
               </Button>
             </div>
 
-            <div className="mt-8 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-3">
-              <Card className="border-border/60 bg-background/80">
-                <CardContent className="p-4 text-left">
-                  <p className="text-foreground text-2xl font-bold">500+</p>
-                  <p className="text-muted-foreground mt-1 text-sm">Active hiring teams</p>
-                </CardContent>
-              </Card>
-              <Card className="border-border/60 bg-background/80">
-                <CardContent className="p-4 text-left">
-                  <p className="text-foreground text-2xl font-bold">50k+</p>
-                  <p className="text-muted-foreground mt-1 text-sm">Applications reviewed</p>
-                </CardContent>
-              </Card>
-              <Card className="border-border/60 bg-background/80">
-                <CardContent className="p-4 text-left">
-                  <p className="text-foreground text-2xl font-bold">40%</p>
-                  <p className="text-muted-foreground mt-1 text-sm">Faster hiring cycles</p>
-                </CardContent>
-              </Card>
+            <div className="border-border/70 bg-background/80 mt-12 w-full max-w-5xl overflow-hidden rounded-3xl border shadow-sm backdrop-blur-sm">
+              <div className="divide-border/60 grid grid-cols-1 divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                <div className="flex flex-col items-center px-6 py-7 text-center sm:py-8">
+                  <div className="bg-primary/10 ring-primary/20 mb-3 rounded-lg p-2 ring-1">
+                    <Building2 className="text-primary h-4 w-4" />
+                  </div>
+                  <p className="text-foreground text-4xl leading-none font-extrabold tracking-tight">
+                    500+
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-sm font-medium">
+                    Active hiring teams
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center px-6 py-7 text-center sm:py-8">
+                  <div className="bg-primary/10 ring-primary/20 mb-3 rounded-lg p-2 ring-1">
+                    <FileText className="text-primary h-4 w-4" />
+                  </div>
+                  <p className="text-foreground text-4xl leading-none font-extrabold tracking-tight">
+                    50k+
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-sm font-medium">
+                    Applications reviewed
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center px-6 py-7 text-center sm:py-8">
+                  <div className="bg-primary/10 ring-primary/20 mb-3 rounded-lg p-2 ring-1">
+                    <Clock3 className="text-primary h-4 w-4" />
+                  </div>
+                  <p className="text-foreground text-4xl leading-none font-extrabold tracking-tight">
+                    40%
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-sm font-medium">
+                    Faster hiring cycles
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
-          <section id="features" className="space-y-6">
+          <section id="features" className="mx-auto w-full max-w-5xl space-y-8">
             <div className="text-center">
               <p className="text-primary text-sm font-semibold tracking-wide uppercase">Features</p>
-              <h2 className="text-foreground mt-2 text-3xl font-bold tracking-tight">
+              <h2 className="text-foreground mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 Everything you need to run hiring in one place
               </h2>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="border-border/70">
-                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+            <div className="grid gap-5 md:grid-cols-3">
+              <Card className="border-border/70 rounded-2xl">
+                <CardHeader className="flex flex-row items-center gap-3 p-6 pb-3">
                   <div className="bg-primary/10 rounded-lg p-2">
                     <Briefcase className="text-primary h-5 w-5" />
                   </div>
                   <h3 className="text-lg font-semibold">Job Management</h3>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pt-0 pb-6">
                   <p className="text-muted-foreground text-sm leading-6">
                     Create, edit, and publish roles with clear status tracking for every opening.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border-border/70">
-                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <Card className="border-border/70 rounded-2xl">
+                <CardHeader className="flex flex-row items-center gap-3 p-6 pb-3">
                   <div className="bg-primary/10 rounded-lg p-2">
                     <FileText className="text-primary h-5 w-5" />
                   </div>
                   <h3 className="text-lg font-semibold">Application Tracking</h3>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pt-0 pb-6">
                   <p className="text-muted-foreground text-sm leading-6">
                     Review applications by role, monitor statuses, and keep your pipeline organized.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border-border/70">
-                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <Card className="border-border/70 rounded-2xl">
+                <CardHeader className="flex flex-row items-center gap-3 p-6 pb-3">
                   <div className="bg-primary/10 rounded-lg p-2">
                     <BarChart3 className="text-primary h-5 w-5" />
                   </div>
                   <h3 className="text-lg font-semibold">Hiring Visibility</h3>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pt-0 pb-6">
                   <p className="text-muted-foreground text-sm leading-6">
                     See candidate flow and hiring progress with simple recruiter-focused dashboards.
                   </p>
@@ -139,19 +158,19 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="solutions" className="grid gap-4 lg:grid-cols-2">
-            <Card className="border-border/70">
-              <CardHeader>
+          <section id="solutions" className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-2">
+            <Card className="border-border/70 rounded-2xl">
+              <CardHeader className="p-6 pb-3">
                 <div className="flex items-center gap-2">
                   <Building2 className="text-primary h-5 w-5" />
                   <h3 className="text-xl font-semibold">For Recruiters</h3>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4 px-6 pt-0 pb-6">
                 <p className="text-muted-foreground text-sm leading-6">
                   Move from job posting to offer with less friction and clearer collaboration.
                 </p>
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-3 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="text-primary mt-0.5 h-4 w-4" />
                     Manage all job applications from a single recruiter workspace
@@ -168,18 +187,18 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="border-border/70">
-              <CardHeader>
+            <Card className="border-border/70 rounded-2xl">
+              <CardHeader className="p-6 pb-3">
                 <div className="flex items-center gap-2">
                   <Users className="text-primary h-5 w-5" />
                   <h3 className="text-xl font-semibold">For Candidates</h3>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4 px-6 pt-0 pb-6">
                 <p className="text-muted-foreground text-sm leading-6">
                   Apply with confidence and keep track of opportunities in one place.
                 </p>
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-3 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="text-primary mt-0.5 h-4 w-4" />
                     Submit applications with resume and cover letter in minutes
@@ -197,33 +216,33 @@ export default function Home() {
             </Card>
           </section>
 
-          <section id="pricing" className="space-y-6">
+          <section id="pricing" className="mx-auto w-full max-w-5xl space-y-8">
             <div className="text-center">
               <p className="text-primary text-sm font-semibold tracking-wide uppercase">Pricing</p>
-              <h2 className="text-foreground mt-2 text-3xl font-bold tracking-tight">
+              <h2 className="text-foreground mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 Flexible plans for every hiring stage
               </h2>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="border-border/70">
-                <CardHeader>
+            <div className="grid gap-5 md:grid-cols-3">
+              <Card className="border-border/70 rounded-2xl">
+                <CardHeader className="p-6 pb-3">
                   <h3 className="text-xl font-semibold">Starter</h3>
                   <p className="text-muted-foreground text-sm">For small teams beginning to hire</p>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 px-6 pt-0 pb-6">
                   <p className="text-foreground text-2xl font-bold">$29/mo</p>
                   <p className="text-muted-foreground text-sm">Up to 3 active job postings</p>
                 </CardContent>
               </Card>
 
-              <Card className="border-primary/50 bg-primary/5">
-                <CardHeader>
+              <Card className="border-primary/50 bg-primary/5 rounded-2xl shadow-sm">
+                <CardHeader className="p-6 pb-3">
                   <Badge className="w-fit rounded-full">Most Popular</Badge>
                   <h3 className="text-xl font-semibold">Growth</h3>
                   <p className="text-muted-foreground text-sm">For scaling hiring teams</p>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 px-6 pt-0 pb-6">
                   <p className="text-foreground text-2xl font-bold">$99/mo</p>
                   <p className="text-muted-foreground text-sm">
                     Unlimited jobs and full pipeline view
@@ -231,14 +250,14 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <Card className="border-border/70">
-                <CardHeader>
+              <Card className="border-border/70 rounded-2xl">
+                <CardHeader className="p-6 pb-3">
                   <h3 className="text-xl font-semibold">Enterprise</h3>
                   <p className="text-muted-foreground text-sm">
                     For high-volume recruiting operations
                   </p>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 px-6 pt-0 pb-6">
                   <p className="text-foreground text-2xl font-bold">Custom</p>
                   <p className="text-muted-foreground text-sm">
                     Advanced controls and priority support
@@ -248,18 +267,21 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="about" className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
-            <Card className="border-border/70">
-              <CardHeader>
+          <section
+            id="about"
+            className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1.1fr_1fr]"
+          >
+            <Card className="border-border/70 rounded-2xl">
+              <CardHeader className="p-6 pb-3">
                 <h3 className="text-2xl font-semibold">Why teams choose TalentHub</h3>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm">
+              <CardContent className="space-y-4 px-6 pt-0 pb-6 text-sm">
                 <p className="text-muted-foreground leading-6">
                   TalentHub is built for practical hiring execution: clear workflows, fast review,
                   and transparent candidate progress.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="border-border/60 rounded-lg border p-3">
+                  <div className="border-border/60 rounded-xl border p-4">
                     <div className="flex items-center gap-2">
                       <Clock3 className="text-primary h-4 w-4" />
                       <p className="font-medium">Save Time</p>
@@ -268,7 +290,7 @@ export default function Home() {
                       Reduce manual follow-up with a centralized process.
                     </p>
                   </div>
-                  <div className="border-border/60 rounded-lg border p-3">
+                  <div className="border-border/60 rounded-xl border p-4">
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="text-primary h-4 w-4" />
                       <p className="font-medium">Stay Secure</p>
@@ -281,9 +303,9 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="border-border/70">
-              <CardContent className="flex h-full flex-col justify-between gap-6 p-6">
-                <div className="space-y-2">
+            <Card className="border-border/70 rounded-2xl">
+              <CardContent className="flex h-full flex-col justify-between gap-8 p-7 sm:p-8">
+                <div className="space-y-3">
                   <p className="text-primary text-sm font-semibold tracking-wide uppercase">
                     Ready to start?
                   </p>
@@ -309,7 +331,7 @@ export default function Home() {
           </section>
         </main>
 
-        <footer className="border-border/70 mt-16 border-t py-8">
+        <footer className="border-border/70 mx-auto mt-24 w-full max-w-5xl border-t py-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-foreground text-base font-semibold">TalentHub</p>

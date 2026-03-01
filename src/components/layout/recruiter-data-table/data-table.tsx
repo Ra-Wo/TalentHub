@@ -121,6 +121,9 @@ export function DataTable<TData extends { status: string; department: string }, 
     },
   });
 
+  const pageCount = table.getPageCount();
+  const showPaginationControls = pageCount > 1;
+
   return (
     <div className="bg-card border-border flex h-full flex-col overflow-hidden rounded-xl border shadow-sm">
       {/* Toolbar */}
@@ -132,7 +135,7 @@ export function DataTable<TData extends { status: string; department: string }, 
           </div>
           <Input
             className="bg-background border-border focus:ring-primary focus:border-primary block h-10 w-full rounded-lg pr-3 pl-10 transition-colors focus:ring-1 sm:text-sm"
-            placeholder="Search by job title, keyword, or ID..."
+            placeholder="Search by job title..."
             type="text"
             onChange={(event) => {
               table.getColumn("title")?.setFilterValue(event.target.value);
@@ -173,7 +176,7 @@ export function DataTable<TData extends { status: string; department: string }, 
       {/* Table */}
       <div className="flex-1 overflow-x-auto">
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader className="bg-muted/30 rounded-2xl">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -215,7 +218,7 @@ export function DataTable<TData extends { status: string; department: string }, 
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-accent/40 group transition-colors"
+                  className={`group transition-colors ${onRowClick ? "hover:bg-accent/40 cursor-pointer" : ""}`}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -291,84 +294,86 @@ export function DataTable<TData extends { status: string; department: string }, 
         </div>
 
         {/* Page navigation */}
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-            title="First page"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            title="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+        {showPaginationControls ? (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              title="First page"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              title="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-          {/* Page number pills */}
-          {Array.from({ length: table.getPageCount() }, (_, i) => i)
-            .filter((page) => {
-              const current = pagination.pageIndex;
-              const total = table.getPageCount();
-              return page === 0 || page === total - 1 || Math.abs(page - current) <= 1;
-            })
-            .reduce<(number | "…")[]>((acc, page, idx, arr) => {
-              if (idx > 0 && (page as number) - (arr[idx - 1] as number) > 1) {
-                acc.push("…");
-              }
-              acc.push(page);
-              return acc;
-            }, [])
-            .map((item, idx) =>
-              item === "…" ? (
-                <span
-                  key={`ellipsis-${idx}`}
-                  className="text-muted-foreground px-1 text-sm select-none"
-                >
-                  …
-                </span>
-              ) : (
-                <Button
-                  key={item}
-                  variant={pagination.pageIndex === item ? "default" : "outline"}
-                  size="sm"
-                  className="h-8 w-8 p-0 text-xs"
-                  onClick={() => table.setPageIndex(item as number)}
-                >
-                  {(item as number) + 1}
-                </Button>
-              ),
-            )}
+            {/* Page number pills */}
+            {Array.from({ length: pageCount }, (_, i) => i)
+              .filter((page) => {
+                const current = pagination.pageIndex;
+                const total = pageCount;
+                return page === 0 || page === total - 1 || Math.abs(page - current) <= 1;
+              })
+              .reduce<(number | "…")[]>((acc, page, idx, arr) => {
+                if (idx > 0 && (page as number) - (arr[idx - 1] as number) > 1) {
+                  acc.push("…");
+                }
+                acc.push(page);
+                return acc;
+              }, [])
+              .map((item, idx) =>
+                item === "…" ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="text-muted-foreground px-1 text-sm select-none"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <Button
+                    key={item}
+                    variant={pagination.pageIndex === item ? "default" : "outline"}
+                    size="sm"
+                    className="h-8 w-8 p-0 text-xs"
+                    onClick={() => table.setPageIndex(item as number)}
+                  >
+                    {(item as number) + 1}
+                  </Button>
+                ),
+              )}
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            title="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-            title="Last page"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
-        </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              title="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.setPageIndex(pageCount - 1)}
+              disabled={!table.getCanNextPage()}
+              title="Last page"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

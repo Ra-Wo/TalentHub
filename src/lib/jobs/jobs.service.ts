@@ -176,3 +176,28 @@ export async function updateJob(
 
   return data as { id: string };
 }
+
+export async function updateRecruiterJobStatus(
+  supabase: SupabaseClient,
+  jobId: string,
+  status: "Draft" | "Active" | "Closed",
+): Promise<{ id: string }> {
+  const recruiter = await ensureRecruiter(supabase);
+
+  const { data, error } = await supabase
+    .from(JOB_TABLE)
+    .update({
+      status,
+      updatedAt: new Date().toISOString(),
+    })
+    .eq("id", jobId)
+    .eq("recruiterId", recruiter.id)
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to update job status.");
+  }
+
+  return data as { id: string };
+}
