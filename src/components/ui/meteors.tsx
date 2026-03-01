@@ -8,6 +8,8 @@ export interface MeteorsProps {
   children?: React.ReactNode;
   /** Number of meteors */
   count?: number;
+  /** Backward-compatible alias for count */
+  number?: number;
   /** Meteor angle in degrees (215 = diagonal down-left) */
   angle?: number;
   /** Meteor color */
@@ -26,28 +28,35 @@ interface MeteorData {
 export function Meteors({
   className,
   children,
-  count = 20,
+  count = 10,
+  number,
   angle = 215,
-  color = "#64748b",
-  tailColor = "#64748b",
+  color = "currentColor",
+  tailColor = "currentColor",
 }: MeteorsProps) {
   const [meteors, setMeteors] = useState<MeteorData[]>([]);
+  const meteorCount = number ?? count;
 
   // Generate meteor data on client only to avoid hydration mismatch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMeteors(
-      Array.from({ length: count }, (_, i) => ({
+      Array.from({ length: meteorCount }, (_, i) => ({
         id: i,
-        left: i * (100 / count), // Evenly distribute across width
+        left: i * (100 / meteorCount), // Evenly distribute across width
         delay: Math.random() * 5,
         duration: 3 + Math.random() * 7,
       })),
     );
-  }, [count]);
+  }, [meteorCount]);
 
   return (
-    <div className={cn("fixed inset-0 overflow-hidden bg-neutral-950", className)}>
+    <div
+      className={cn(
+        "text-primary/70 dark:text-primary/85 fixed inset-0 overflow-hidden",
+        className,
+      )}
+    >
       {/* Keyframe animation - uses vmax for viewport scaling */}
       <style>{`
         @keyframes meteor-fall {
@@ -65,27 +74,16 @@ export function Meteors({
         }
       `}</style>
 
-      {/* Subtle gradient overlay */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(ellipse at 50% 0%, rgba(30, 40, 60, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at 100% 100%, rgba(20, 20, 40, 0.2) 0%, transparent 50%)
-          `,
-        }}
-      />
-
       {/* Meteors */}
       {meteors.map((meteor) => (
         <span
           key={meteor.id}
-          className="absolute h-0.5 w-0.5 rounded-full"
+          className="absolute h-1 w-1 rounded-full"
           style={{
             top: "-40px",
             left: `${meteor.left}%`,
             backgroundColor: color,
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.1)",
+            boxShadow: `0 0 8px ${color}`,
             animation: `meteor-fall ${meteor.duration}s linear infinite`,
             animationDelay: `${meteor.delay}s`,
           }}
@@ -95,22 +93,13 @@ export function Meteors({
             className="absolute top-1/2 -translate-y-1/2"
             style={{
               left: "100%",
-              width: "50px",
-              height: "1px",
+              width: "72px",
+              height: "2px",
               background: `linear-gradient(to right, ${tailColor}, transparent)`,
             }}
           />
         </span>
       ))}
-
-      {/* Vignette */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(10,10,15,0.8) 100%)",
-        }}
-      />
 
       {/* Content layer */}
       {children && <div className="relative z-10 h-full w-full">{children}</div>}

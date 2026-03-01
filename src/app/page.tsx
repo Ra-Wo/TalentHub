@@ -19,11 +19,11 @@ import {
 export default function Home() {
   return (
     <div className="bg-background relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hidden dark:block">
-        <Meteors number={24} />
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <Meteors count={10} className="opacity-70 dark:opacity-90" />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 pt-5 pb-16 sm:px-8 sm:pt-6 lg:px-12 xl:px-14">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 pt-5 pb-16 sm:px-8 sm:pt-6 lg:px-12 xl:px-14">
         <HomeHeader />
 
         <main className="mt-16 space-y-20 sm:mt-20 sm:space-y-24">
