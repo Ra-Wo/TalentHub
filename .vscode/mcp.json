@@ -4,12 +4,5 @@
       "command": "npx",
       "args": ["shadcn@latest", "mcp"]
     },
-    "stitch": {
-      "type": "http",
-      "url": "https://stitch.googleapis.com/mcp",
-      "headers": {
-        "X-Goog-Api-Key": "AQ.Ab8RN6KCoE7MoW9V9aTh5tsf0SYlW7FK4iArK_LI0NQarlSWjQ"
-      }
-    }
   }
 }
