@@ -1,6 +1,6 @@
 # TalentHub
 
-#### (This project is not for production) please review the code before u deploy it or add more features.
+### (This project is not for production) please review the code before u deploy it or add more features.
 
 TalentHub is a role-based hiring platform built with Next.js and Supabase.
 It supports recruiter workflows (create/manage jobs and review applications) and candidate workflows (apply to jobs and track status updates).
