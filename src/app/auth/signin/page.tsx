@@ -4,9 +4,9 @@ import { SignInForm } from "@/components/feature/auth/signin-form";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function SignInPage() {
+function SignInPageContent() {
   const { isAuthenticated, loading, accountType } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,5 +57,21 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SignInPageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="border-border border-t-primary h-12 w-12 animate-spin rounded-full border-4" />
+    </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInPageFallback />}>
+      <SignInPageContent />
+    </Suspense>
   );
 }
