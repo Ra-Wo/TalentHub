@@ -183,7 +183,7 @@ export function DataTable<TData extends { status: string; department: string }, 
                   return (
                     <TableHead
                       key={header.id}
-                      className="text-muted-foreground h-11 text-[11px] font-semibold tracking-wide uppercase"
+                      className="text-muted-foreground h-11 px-4 text-[11px] font-semibold tracking-wide uppercase first:pl-6 last:pr-6"
                     >
                       {header.isPlaceholder
                         ? null
@@ -199,7 +199,10 @@ export function DataTable<TData extends { status: string; department: string }, 
               Array.from({ length: 6 }).map((_, rowIndex) => (
                 <TableRow key={`loading-row-${rowIndex}`}>
                   {columns.map((_, colIndex) => (
-                    <TableCell key={`loading-cell-${rowIndex}-${colIndex}`} className="py-4">
+                    <TableCell
+                      key={`loading-cell-${rowIndex}-${colIndex}`}
+                      className="px-4 py-4 first:pl-6 last:pr-6"
+                    >
                       <Skeleton
                         className={`h-4 ${
                           colIndex === 0
@@ -222,7 +225,10 @@ export function DataTable<TData extends { status: string; department: string }, 
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4 align-middle">
+                    <TableCell
+                      className="px-4 py-4 align-middle first:pl-6 last:pr-6"
+                      key={cell.id}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
