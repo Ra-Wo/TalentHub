@@ -203,29 +203,6 @@ export default function RecruiterPage() {
                   {mostAppliedJob?.title ?? "No data yet"}
                 </h3>
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    <Image
-                      width={24}
-                      height={24}
-                      alt="Applicant 1"
-                      className="ring-card inline-block size-6 rounded-full ring-2"
-                      src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
-                    />
-                    <Image
-                      width={24}
-                      height={24}
-                      alt="Applicant 2"
-                      className="ring-card inline-block size-6 rounded-full ring-2"
-                      src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
-                    />
-                    <Image
-                      width={24}
-                      height={24}
-                      alt="Applicant 3"
-                      className="ring-card inline-block size-6 rounded-full ring-2"
-                      src="https://lh3.googleusercontent.com/a/ACg8ocKnVO3y6uIqf5HoRO7KJ6UMsdYeihJKTQX8L4h-aAPVeBJs9tCeBg=s96-c"
-                    />
-                  </div>
                   <span className="text-sm font-semibold text-blue-500">
                     {mostAppliedJob?.applicants ?? 0} Applicants
                   </span>
