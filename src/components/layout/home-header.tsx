@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import ThemeToggle from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,7 @@ export function HomeHeader() {
     <header className="border-border/50 bg-background/70 flex items-center justify-between gap-6 rounded-full border px-6 py-3 shadow-sm backdrop-blur">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 48 48"
-            className="text-primary h-9 w-9"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="24" cy="24" r="20" fill="currentColor" opacity="0.2" />
-            <circle cx="24" cy="24" r="12" fill="currentColor" />
-            <circle cx="32" cy="16" r="4" fill="currentColor" opacity="0.9" />
-          </svg>
+          <Image src="/icon.png" alt="TalentHub" width={36} height={36} className="rounded-md" />
         </div>
         <span className="text-foreground text-sm font-semibold">TalentHub</span>
       </div>

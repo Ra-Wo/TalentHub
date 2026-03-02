@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import Image from "next/image";
 import { Moon, Sun, ChevronDown, LogOut, Settings, ArrowRightLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
@@ -70,6 +71,7 @@ export function DashboardHeader() {
   }, [supabase, user?.id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -94,19 +96,7 @@ export function DashboardHeader() {
     <header className="border-border/70 bg-background/80 border-b backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-10">
         <Link href="/" className="flex items-center gap-3">
-          <div className="bg-primary/20 flex h-10 w-10 items-center justify-center rounded-lg">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 48 48"
-              className="text-primary h-6 w-6"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="24" cy="24" r="20" fill="currentColor" opacity="0.2" />
-              <circle cx="24" cy="24" r="12" fill="currentColor" />
-              <circle cx="32" cy="16" r="4" fill="currentColor" opacity="0.9" />
-            </svg>
-          </div>
+          <Image src="/icon.png" alt="TalentHub" width={40} height={40} className="rounded" />
           <span className="text-foreground font-semibold">TalentHub</span>
         </Link>
 
